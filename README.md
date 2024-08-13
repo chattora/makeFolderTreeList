@@ -14,7 +14,7 @@
 ・その後はMAX_EXECUTION_TIMEで設定された時間を処理をし、処理が完了していない場合は完了まで再度トリガーを設定する。  
 ### データ
 データそのものを保持をすると膨大なデータ量になるため、再帰的に処理用のフォルダIDを保持している。  
-folderQueue: [{ id:id,layer:layer }],
+folderQueue: [{ id:id,layer:layer }],  
 →id:フォルダid  
 →layer:階層レイヤー（深度）  
 
