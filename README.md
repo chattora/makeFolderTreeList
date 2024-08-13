@@ -1,1 +1,3 @@
 # makeFolderTreeList
+
+任意のフォルダをルートとしてGoogleドライブ内のフォルダ階層をリストかする。
