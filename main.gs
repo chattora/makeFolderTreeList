@@ -13,6 +13,7 @@ const TRIGGER_FUNC = '_main';
 const MAX_EXECUTION_TIME = 10 * 60 * 1000; // Google有料版のタイムアウトが30分なので書き込み用のバッファを持って10分で強制終了
 const WRITE_ROW_MAX = 1000;
 const PROGRESS_PROPERTY = 'processProgress';  //保存データ
+const VERSION = 0
  
 /******************************
  *  Data_table

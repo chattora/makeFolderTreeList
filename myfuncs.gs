@@ -91,7 +91,7 @@ function _getRootFolderInfo(){
 //リストを出力するスプレッドシートを作成する
 function _createRootSpreadSheet(folderId, sheetName){
 
-  const spreadSheet = SpreadsheetApp.create(sheetName + "の階層リストシート");
+  const spreadSheet = SpreadsheetApp.create(sheetName + "の階層リストシート" + VERSION );
   const sheetId = spreadSheet.getId();
   const sheet = spreadSheet.getActiveSheet();
 
@@ -161,13 +161,44 @@ function _initProgress(progress)
   const scriptProperties = PropertiesService.getScriptProperties();
 
   _sendStartMail(progress); //開始メール送信
-  scriptProperties.setProperty(PROGRESS_PROPERTY, JSON.stringify(progress));
+  _setConditional(progress.sheetId); //色付けルール設定
+  scriptProperties.setProperty(PROGRESS_PROPERTY, JSON.stringify(progress)); //データ保存
   _clearTrigger(); //古いトリガーがあれば削除
   ScriptApp.newTrigger(TRIGGER_FUNC)
     .timeBased()
     .after(RESTART_TIME) // 1分後に再実行
     .create();
 }
+//セル色付けのための条件を設定
+function _setConditional(sheetId) {
+
+  const sheet = SpreadsheetApp.openById(sheetId).getActiveSheet();
+  const rules = sheet.getConditionalFormatRules();
+
+  sheet.setConditionalFormatRules([]); // 空の配列をセットして全ての条件付き書式ルールを削除
+
+  const ruleFolder = SpreadsheetApp.newConditionalFormatRule()
+      .whenFormulaSatisfied('=$A1="📂"') // A列の値が「1」の場合
+      .setBackground("#FFEEFF") // 背景色を黄色に設定
+      .setRanges([sheet.getRange("A:G")]) // A列からC列全体を指定
+      .build();
+
+  rules.push(ruleFolder);
+
+  for(let i = 0; i < FOLDER_COLOR_TBL.length;i++)
+  {
+    const rule = SpreadsheetApp.newConditionalFormatRule()
+        .whenFormulaSatisfied(`=AND($A1=${i}, NOT(ISBLANK($A1)))` )// A列の値が現在の数値と一致する場合
+        .setBackground(FOLDER_COLOR_TBL[i]) // 数値ごとに異なる色を設定
+        .setRanges([sheet.getRange("A:G")]) // A列からC列全体を指定
+        .build();
+    
+    rules.push(rule);
+
+  }
+  sheet.setConditionalFormatRules(rules);
+}
+
 //階層リストの作成
 function _folderList(progress) {
   const startTime = Date.now();

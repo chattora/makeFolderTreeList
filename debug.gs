@@ -1,8 +1,13 @@
+const DEBUG = false; //Propertiesのログを出力しない場合は　false
+
 //保存データを出力する　
 //デバッグとして使用
 function _savePropertiesToFile() {
-  var scriptProperties = PropertiesService.getScriptProperties();
-  var allProperties = scriptProperties.getProperties();
+
+  if ( DEBUG != true ) return;
+
+  const scriptProperties = PropertiesService.getScriptProperties();
+  const allProperties = scriptProperties.getProperties();
   
   var fileContent = "Properties:\n";
   for (var key in allProperties) {
