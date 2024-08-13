@@ -21,7 +21,8 @@ folderQueue: [{ id:id,layer:layer }],
 
 
 ## デバッグ仕様
-・デバッグ用にJSON形式で保存したデータをdebugProperties.txtというファイルでマイドライブに出力している　  
+・デバッグ用にJSON形式で保存したデータをdebugProperties.txtというファイルでマイドライブに出力している　。  
+→ 出力したい場合はdegug.gsの定数DEBUGにtrueを代入してください。  
 ・途中で処理を停止した場合、保存データが残っていると最初から処理が始まらないので、_delPropertyを実行してから再度行ってください。  
 トリガー確認　→ https://script.google.com/home/
 
