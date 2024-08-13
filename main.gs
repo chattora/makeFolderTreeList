@@ -29,6 +29,15 @@ const FOLDER_COLOR_TBL = [
   '#c9daf8',
   '#d9d2e9',
   '#ead1dc',
+  '#e6b8af',
+  '#f4cccc',
+  '#fce5cd',
+  '#fff2cc',
+  '#d9ead3',
+  '#d0e0e3',
+  '#c9daf8',
+  '#d9d2e9',
+  '#ead1dc',
 ]
 /******************************
  *  MAIN
