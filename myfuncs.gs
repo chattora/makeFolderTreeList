@@ -178,8 +178,8 @@ function _setConditional(sheetId) {
   sheet.setConditionalFormatRules([]); // 空の配列をセットして全ての条件付き書式ルールを削除
 
   const ruleFolder = SpreadsheetApp.newConditionalFormatRule()
-      .whenFormulaSatisfied('=$A1="📂"') // A列の値が「1」の場合
-      .setBackground("#FFEEFF") // 背景色を黄色に設定
+      .whenFormulaSatisfied('=$A1="📂"') // A列の値がフォルダの場合
+      .setBackground("#FFEEFF") // 背景色を薄紫に設定
       .setRanges([sheet.getRange("A:G")]) // A列からC列全体を指定
       .build();
 
@@ -188,8 +188,8 @@ function _setConditional(sheetId) {
   for(let i = 0; i < FOLDER_COLOR_TBL.length;i++)
   {
     const rule = SpreadsheetApp.newConditionalFormatRule()
-        .whenFormulaSatisfied(`=AND($A1=${i}, NOT(ISBLANK($A1)))` )// A列の値が現在の数値と一致する場合
-        .setBackground(FOLDER_COLOR_TBL[i]) // 数値ごとに異なる色を設定
+        .whenFormulaSatisfied(`=AND($A1=${i}, NOT(ISBLANK($A1)))` )// A列の値が現在の数値と一致する　かつ　空白ではない場合
+        .setBackground(FOLDER_COLOR_TBL[i]) // テーブルから色を設定
         .setRanges([sheet.getRange("A:G")]) // A列からC列全体を指定
         .build();
     
