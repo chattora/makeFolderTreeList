@@ -11,7 +11,7 @@ function _savePropertiesToFile() {
     }
   }
   
-  var file = DriveApp.createFile("neoProperties2.txt", fileContent);
+  var file = DriveApp.createFile("debugProperties.txt", fileContent);
   Logger.log("Properties saved to: " + file.getUrl());
 }
 //propery矯正削除　デバッグ用

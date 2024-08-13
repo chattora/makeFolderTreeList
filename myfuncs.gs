@@ -91,7 +91,7 @@ function _getRootFolderInfo(){
 //リストを出力するスプレッドシートを作成する
 function _createRootSpreadSheet(folderId, sheetName){
 
-  const spreadSheet = SpreadsheetApp.create(sheetName + "の階層リスト666");
+  const spreadSheet = SpreadsheetApp.create(sheetName + "の階層リストシート");
   const sheetId = spreadSheet.getId();
   const sheet = spreadSheet.getActiveSheet();
 
