@@ -1,9 +1,9 @@
 /******************************
  *  myFuncs
  ******************************/
+// 実行者のメールアドレスを取得
  function _getUserEmail() {
   try {
-    // 実行者のメールアドレスを取得
     var email = Session.getActiveUser().getEmail();
     
     // メールアドレスをログに表示
@@ -13,7 +13,7 @@
   }
   return email
 }
-
+//開始メール送信
 function _sendStartMail(progress) {
   try {
     // 実行者のメールアドレスを取得
@@ -36,6 +36,7 @@ function _sendStartMail(progress) {
     Logger.log('Error: ' + e.message);
   }
 }
+//終了メール送信
 function _sendEndMail(progress) {
   try {
     // 実行者のメールアドレスを取得
@@ -59,6 +60,19 @@ function _sendEndMail(progress) {
     Logger.log('Error: ' + e.message);
   }
 }
+//エラー通知用メール
+function _sendErrorMail(errorMessage) {
+
+  const recipient = Session.getActiveUser().getEmail(); // ユーザーのメアド取得
+  const scriptName = Session.getScriptName(); // スクリプトファイル名を取得
+  const subject = scriptName + ' のエラー通知';
+  const body = 'スクリプトでエラーが発生しました:\n\n' +
+               'エラーメッセージ: ' + errorMessage + '\n' +
+               'スクリプト名: ' + scriptName + '\n' +
+               '発生日時: ' + new Date();
+  
+  MailApp.sendEmail(recipient, subject, body);
+}
 //スクリプトのあるルート情報を取得
 function _getRootFolderInfo(){
 
@@ -77,7 +91,7 @@ function _getRootFolderInfo(){
 //リストを出力するスプレッドシートを作成する
 function _createRootSpreadSheet(folderId, sheetName){
 
-  const spreadSheet = SpreadsheetApp.create(sheetName + "の階層リスト4");
+  const spreadSheet = SpreadsheetApp.create(sheetName + "の階層リスト666");
   const sheetId = spreadSheet.getId();
   const sheet = spreadSheet.getActiveSheet();
 
@@ -109,6 +123,7 @@ function _runProcessing() {
       sheetId:null,
       email:userMail,
       folderName:rootFolederInfo.folderName,
+      itemCnt:itemCnt,
   }));
   
   if(!progress.sheetId) //シートがなかったら作成する
@@ -121,7 +136,9 @@ function _runProcessing() {
 
   //リストの階層化
   _folderList(progress);
+  _clearTrigger(); //古いトリガーがあれば削除
 
+  //処理の完了を判定
   if (progress.folderQueue.length === 0) {
     scriptProperties.deleteProperty(PROGRESS_PROPERTY);
     Logger.log('フォルダ階層の取得が完了しました');
@@ -132,25 +149,26 @@ function _runProcessing() {
 
   } else {
     scriptProperties.setProperty(PROGRESS_PROPERTY, JSON.stringify(progress));
-     ScriptApp.newTrigger('_main')
+     ScriptApp.newTrigger(TRIGGER_FUNC)
              .timeBased()
-             .after(1 * 60 * 1000) // 1分後に再実行
+             .after(RESTART_TIME) // 1分後に再実行
              .create();
   }
 }
-
+//初期化
 function _initProgress(progress)
 {
-     const scriptProperties = PropertiesService.getScriptProperties();
-   _sendStartMail(progress);
+  const scriptProperties = PropertiesService.getScriptProperties();
 
-    scriptProperties.setProperty(PROGRESS_PROPERTY, JSON.stringify(progress));
-    ScriptApp.newTrigger('_main')
-            .timeBased()
-            .after(1 * 60 * 1000) // 1分後に再実行
-            .create();
+  _sendStartMail(progress); //開始メール送信
+  scriptProperties.setProperty(PROGRESS_PROPERTY, JSON.stringify(progress));
+  _clearTrigger(); //古いトリガーがあれば削除
+  ScriptApp.newTrigger(TRIGGER_FUNC)
+    .timeBased()
+    .after(RESTART_TIME) // 1分後に再実行
+    .create();
 }
-
+//階層リストの作成
 function _folderList(progress) {
   const startTime = Date.now();
 
@@ -168,7 +186,6 @@ function _folderList(progress) {
       }
       _savePropertiesToFile(); //デバッグ用に保存データを書き出し
       PropertiesService.getScriptProperties().setProperty(PROGRESS_PROPERTY, JSON.stringify(progress));
-
       Logger.log('タイムアウトが発生しました。処理を中断し、次回に続きます。');
       return;
     }
@@ -190,7 +207,8 @@ function _folderList(progress) {
 
       progress.folderListArray.push([FOLDER_ICON, subFolder.getName(), "フォルダ", subFolder.getUrl(), owners, writers, readers]);
       progress.colorArray.push(layer);
-      console.log("フォルダ→"+subFolder.getName());
+      progress.itemCnt++;
+      console.log("フォルダ→"+subFolder.getName() + "itemCnt = " + progress.itemCnt);
       progress.folderQueue.push({ id: folderId, layer: layer + 1 });
     }
 
@@ -205,8 +223,8 @@ function _folderList(progress) {
 
       progress.folderListArray.push([layer, file.getName(), "ファイル", file.getUrl(), owners, writers, readers]);
       progress.colorArray.push(layer);   
-      console.log("ファイル→"+file.getName());
-
+      progress.itemCnt++;
+      console.log("ファイル→"+file.getName() + "itemCnt = " + progress.itemCnt);
     }
   }
 }
@@ -216,7 +234,7 @@ function _folderList(progress) {
   const spreadSheet = SpreadsheetApp.openById(progress.sheetId);
   const sheet = spreadSheet.getActiveSheet();
 
-  _setHierarcheyColor(sheet,progress.colorArray);
+  //_setHierarcheyColor(sheet,progress.colorArray); //処理が重いのでスキップ
 
   sheet.getRange(sheet.getLastRow() + START_ROW,START_COW,progress.folderListArray.length,progress.folderListArray[0].length).setValues(progress.folderListArray);
 
@@ -224,8 +242,7 @@ function _folderList(progress) {
 //階層を色ごとに分ける
 function _setHierarcheyColor(sheet,colorArray)
 {
- 
-   for(let i=0; i< colorArray.length;i++)
+    for(let i=0; i< colorArray.length;i++)
   {
     if( isNaN(colorArray[i]) == false )
     {
@@ -262,6 +279,17 @@ function _getPermissions(fileId) {
   }
   return permissionArray;
 }
+
+//トリガーの削除
+function _clearTrigger() {
+  const triggers = ScriptApp.getProjectTriggers();
+  for (let i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === TRIGGER_FUNC) {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
+  }
+}
+
 //管理者のroleを持つ権限の email だけを取り出す
 function _getOrganizerEmails(permissionsArray) {
   const emailsArray = permissionsArray

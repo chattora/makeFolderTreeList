@@ -1,14 +1,16 @@
 /******************************
  *  Global
  ******************************/
-
+ var itemCnt;
 /******************************
  *  Constant
  ******************************/
 const FOLDER_ICON = "📂";
 const START_COW = 1;
 const START_ROW = 1;
-const MAX_EXECUTION_TIME = 10 * 60 * 1000; // Google有料版のタイムアウトが30分なので書き込み用のバッファを持って10分で強制終了
+const RESTART_TIME = 1 * 60 * 1000;
+const TRIGGER_FUNC = '_main';
+const MAX_EXECUTION_TIME = 1 * 60 * 1000; // Google有料版のタイムアウトが30分なので書き込み用のバッファを持って10分で強制終了
 const WRITE_ROW_MAX = 1000;
 const PROGRESS_PROPERTY = 'processProgress';  //保存データ
  
@@ -32,5 +34,13 @@ const FOLDER_COLOR_TBL = [
  ******************************/
 function _main()
 {
-  _runProcessing();
+  itemCnt =0;
+
+  try {
+    _runProcessing();
+  } catch (e) {
+    Logger.log('エラーが発生しました: ' + e.message);
+    _sendErrorMail(e.message); // エラーメッセージをメールで送信
+    throw e; // エラーを再スローしてログに記録
+  }
 }
