@@ -2,6 +2,7 @@
  *  Global
  ******************************/
  var itemCnt;
+ var statusMessage  = "";
 /******************************
  *  Constant
  ******************************/
@@ -45,7 +46,7 @@ const FOLDER_COLOR_TBL = [
 function _main()
 {
   itemCnt =0;
-
+_setPutMess("実行します");
   try {
     _runProcessing();
   } catch (e) {

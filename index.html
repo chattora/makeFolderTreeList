@@ -2,14 +2,78 @@
 <html>
   <head>
     <base target="_top">
+    
+    <script>
+      //フォルダIDかドライブIDの入力
+      //出力形式の選択
+      //以上をGAS側に送る
+      function submitForm() {
+        var formData = {
+          inputText: document.getElementById('inputText').value,
+          radioOption: document.querySelector('input[name="radioGroup"]:checked').value
+        };
+        google.script.run
+          .withSuccessHandler(function(response) {
+
+            console.log(response);
+            // 成功ハンドラでtextBoxに結果を表示
+            document.getElementById('textBox').innerText = response;
+          })
+          .withFailureHandler(function(error) {
+            // エラーハンドラでエラーメッセージを表示
+            console.error('GAS関数呼び出し中にエラーが発生しました:', error);
+            document.getElementById('textBox').innerText = 'エラーが発生しました: ' + error.message;
+          })
+          ._setForm(formData);
+       }
+
+      //メッセージの出力
+      function _putMess() {
+        google.script.run
+          .withSuccessHandler(function(result) {
+            if(result){
+            document.getElementById('textBox').innerText = result;
+            }
+          })
+          ._getPutMess();
+        setTimeout(_putMess, 1000); // 1秒ごとにポーリング
+      }
+
+      //最初のメッセージ
+      function _putStartMess() {
+        google.script.run
+          .withSuccessHandler(function(result) {
+            document.getElementById('textBox').innerText = result;
+          })
+          ._setPutMess("HelloWord");
+      }
+
+      //最初に表示された時の処理
+      window.onload = function() {
+        _putStartMess();
+        _putMess(); // ページが読み込まれたときにポーリング開始
+      }
+    </script>
   </head>
   <body>
-        <button onclick="_callGasFun()">よっびだし</button>
-  </body>
+    <form onsubmit="event.preventDefault(); submitForm();">
 
-  <script>
-    function _callGasFun(){
-       google.script.run._main();
-    }
-  </script>
+      <label for="inputText">ドライブのIDもしくはフォルダのIDを入力してください:</label>
+      <input type="text" id="inputText" required>
+      <br><br>
+
+      <label>出力形式を選択してください:</label>
+      <br>
+      <input type="radio" id="radio1" name="radioGroup" value="radioOption1" required>
+      <label for="radio1">フォルダのみの階層</label><br>
+      <input type="radio" id="radio2" name="radioGroup" value="radioOption2">
+      <label for="radio2">ファイルも含めた階層</label><br>
+      <br><br>
+
+      <input type="submit" value="実行">
+    </form>
+
+    <h3>▼StatusMessageを表示:</h3>
+    <div id="textBox">ここに実行状況のメッセージが表示されます</div>
+  </body>
 </html>
