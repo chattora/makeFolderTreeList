@@ -4,14 +4,15 @@
 // 実行者のメールアドレスを取得
  function _getUserEmail() {
   try {
-    var email = Session.getActiveUser().getEmail();
+    const email = Session.getActiveUser().getEmail();
     
     // メールアドレスをログに表示
     Logger.log('Current user email: ' + email);
+    return email
+
   } catch (e) {
     Logger.log('Error: ' + e.message);
   }
-  return email
 }
 //開始メール送信
 function _sendStartMail(progress) {
@@ -21,8 +22,8 @@ function _sendStartMail(progress) {
     
     if (email) {
       // メールの件名と本文を設定
-      var subject = progress.folderName + 'の階層リストを作成します';
-      var body = '作業の終了まで数分から数時間かかる場合があります。\n'
+      const subject = progress.folderName + 'の階層リストを作成します';
+      const body = '作業の終了まで数分から数時間かかる場合があります。\n'
       + '完了メールが送られるまでお待ちください。';
 
       // メールを送信
@@ -45,8 +46,8 @@ function _sendEndMail(progress) {
 
     if (email) {
       // メールの件名と本文を設定
-      var subject = progress.folderName + 'の階層リスト作成が完了しました';
-      var body = 'リストが完了しました\n'
+      const subject = progress.folderName + 'の階層リスト作成が完了しました';
+      const body = 'リストが完了しました\n'
       +"url:" + url;
 
       // メールを送信
@@ -194,7 +195,6 @@ function _setConditional(sheetId) {
         .build();
     
     rules.push(rule);
-
   }
   sheet.setConditionalFormatRules(rules);
 }
@@ -290,13 +290,13 @@ function _getPermissions(fileId) {
 
   try {
     // Drive API を使用してファイルの権限情報を取得する
-    var permissions = Drive.Permissions.list(fileId, {
+    let permissions = Drive.Permissions.list(fileId, {
       'supportsAllDrives': true,
       'includeItemsFromAllDrives': true
     });
     
     if (permissions && permissions.items) {
-      var permissionList = permissions.items;
+      let permissionList = permissions.items;
 
       for (let i = 0; i < permissionList.length; i++) {
         permissionArray.push( permissionList[i] );

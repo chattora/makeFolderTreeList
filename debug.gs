@@ -10,16 +10,17 @@ function _savePropertiesToFile() {
   const allProperties = scriptProperties.getProperties();
   
   var fileContent = "Properties:\n";
-  for (var key in allProperties) {
+
+  for (let key in allProperties) {
     if (allProperties.hasOwnProperty(key)) {
       fileContent += key + ": " + allProperties[key] + "\n";
     }
   }
   
-  var file = DriveApp.createFile("debugProperties.txt", fileContent);
+  const file = DriveApp.createFile("debugProperties.txt", fileContent);
   Logger.log("Properties saved to: " + file.getUrl());
 }
-//propery矯正削除　デバッグ用
+//property矯正削除　デバッグ用
 function _delProperty()
 {
   const scriptProperties = PropertiesService.getScriptProperties();
