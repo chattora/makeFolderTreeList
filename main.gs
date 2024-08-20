@@ -46,7 +46,9 @@ const FOLDER_COLOR_TBL = [
 function _main()
 {
   itemCnt =0;
-_setPutMess("実行します");
+_setPutMess("実行しますがががが");
+
+console.log("TEST");
   try {
     _runProcessing();
   } catch (e) {
