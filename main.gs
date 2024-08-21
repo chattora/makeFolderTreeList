@@ -3,6 +3,7 @@
  ******************************/
  var itemCnt;
  var statusMessage  = "";
+ var mainformData;
 /******************************
  *  Constant
  ******************************/
@@ -14,7 +15,7 @@ const TRIGGER_FUNC = '_main';
 const MAX_EXECUTION_TIME = 10 * 60 * 1000; // Google有料版のタイムアウトが30分なので書き込み用のバッファを持って10分で強制終了
 const WRITE_ROW_MAX = 1000;
 const PROGRESS_PROPERTY = 'processProgress';  //保存データ
-const VERSION = 0
+const VERSION = "1.000";
  
 /******************************
  *  Data_table
@@ -46,9 +47,7 @@ const FOLDER_COLOR_TBL = [
 function _main()
 {
   itemCnt =0;
-_setPutMess("実行しますがががが");
-
-console.log("TEST");
+  _setPutMess("処理を設定しています。このままお待ちください");
   try {
     _runProcessing();
   } catch (e) {

@@ -1,79 +1,93 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <base target="_top">
-    
-    <script>
-      //フォルダIDかドライブIDの入力
-      //出力形式の選択
-      //以上をGAS側に送る
-      function submitForm() {
-        var formData = {
-          inputText: document.getElementById('inputText').value,
-          radioOption: document.querySelector('input[name="radioGroup"]:checked').value
-        };
-        google.script.run
-          .withSuccessHandler(function(response) {
+<head>
+  <base target="_top">
+  <style>
+    /* ボタンが無効なときのスタイル */
+    .disabled-button {
+      background-color: #d3d3d3; /* グレーの背景色 */
+      color: #a9a9a9; /* グレーの文字色 */
+      cursor: not-allowed; /* 無効化カーソル */
+    }
+  </style>
+</head>
 
-            console.log(response);
-            // 成功ハンドラでtextBoxに結果を表示
-            document.getElementById('textBox').innerText = response;
-          })
-          .withFailureHandler(function(error) {
-            // エラーハンドラでエラーメッセージを表示
-            console.error('GAS関数呼び出し中にエラーが発生しました:', error);
-            document.getElementById('textBox').innerText = 'エラーが発生しました: ' + error.message;
-          })
-          ._setForm(formData);
-       }
+<body>
+  <form onsubmit="event.preventDefault(); submitForm();">
+    <label for="inputId">ドライブのIDもしくはフォルダのIDを入力してください:</label>
+    <input type="text" id="inputId" required>
+    <br><br>
 
-      //メッセージの出力
-      function _putMess() {
-        google.script.run
-          .withSuccessHandler(function(result) {
-            if(result){
+    <label>出力モードを選択してください:</label>
+    <br>
+    <input type="radio" id="radio1" name="radioGroup" value="mode1" required>
+    <label for="radio1">フォルダのみの階層（ファイル数が多いと予想される場合はこちら）</label><br>
+    <input type="radio" id="radio2" name="radioGroup" value="mode2">
+    <label for="radio2">ファイルも含めた階層</label><br>
+    <br>
+
+    <input type="submit" id="submitButton" value="実行"> <!-- IDを追加 -->
+  </form>
+
+  <h3>▼StatusMessageを表示:</h3>
+  <div id="textBox">ここに実行状況のメッセージが表示されます</div>
+
+  <script>
+    var formSubmitted = false; // フォーム連打を防ぐためのフラグ
+
+    function submitForm() {
+      var submitButton = document.getElementById('submitButton');
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.classList.add('disabled-button');
+      }
+
+      if (formSubmitted) {
+        console.log("すでに押されている");
+        return;
+      }
+      console.log("最初の押された");
+      formSubmitted = true;
+
+      var formData = {
+        inputId: document.getElementById('inputId').value,
+        mode: document.querySelector('input[name="radioGroup"]:checked').value
+      };
+      google.script.run
+        .withSuccessHandler(function(response) {
+          console.log(response);
+          document.getElementById('textBox').innerText = response;
+        })
+        .withFailureHandler(function(error) {
+          console.error('GAS関数呼び出し中にエラーが発生しました:', error);
+          document.getElementById('textBox').innerText = 'エラーが発生しました: ' + error.message;
+        })
+        ._setForm(formData);
+    }
+
+    function _putMess() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if(result){
             document.getElementById('textBox').innerText = result;
-            }
-          })
-          ._getPutMess();
-        setTimeout(_putMess, 1000); // 1秒ごとにポーリング
-      }
+          }
+        })
+        ._getPutMess();
+      setTimeout(_putMess, 500); // 0.5秒ごとにポーリング
+    }
 
-      //最初のメッセージ
-      function _putStartMess() {
-        google.script.run
-          .withSuccessHandler(function(result) {
-            document.getElementById('textBox').innerText = result;
-          })
-          ._setPutMess("HelloWord");
-      }
+    function _putStartMess() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          document.getElementById('textBox').innerText = result;
+        })
+        ._setPutMess("フォルダIDの代入とmodeの選択をしてください");
+    }
 
-      //最初に表示された時の処理
-      window.onload = function() {
-        _putStartMess();
-        _putMess(); // ページが読み込まれたときにポーリング開始
-      }
-    </script>
-  </head>
-  <body>
-    <form onsubmit="event.preventDefault(); submitForm();">
-
-      <label for="inputText">ドライブのIDもしくはフォルダのIDを入力してください:</label>
-      <input type="text" id="inputText" required>
-      <br><br>
-
-      <label>出力形式を選択してください:</label>
-      <br>
-      <input type="radio" id="radio1" name="radioGroup" value="radioOption1" required>
-      <label for="radio1">フォルダのみの階層</label><br>
-      <input type="radio" id="radio2" name="radioGroup" value="radioOption2">
-      <label for="radio2">ファイルも含めた階層</label><br>
-      <br><br>
-
-      <input type="submit" value="実行">
-    </form>
-
-    <h3>▼StatusMessageを表示:</h3>
-    <div id="textBox">ここに実行状況のメッセージが表示されます</div>
-  </body>
+    window.onload = function() {
+      _putStartMess();
+      _putMess(); // ページが読み込まれたときにポーリング開始
+    }
+  </script>
+</body>
 </html>
