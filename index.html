@@ -18,13 +18,13 @@
     <input type="text" id="inputId" required>
     <br><br>
 
-    <label>出力形式を選択してください:</label>
+    <label>出力モードを選択してください:</label>
     <br>
     <input type="radio" id="radio1" name="radioGroup" value="mode1" required>
-    <label for="radio1">フォルダのみの階層</label><br>
+    <label for="radio1">フォルダのみの階層（ファイル数が多いと予想される場合はこちら）</label><br>
     <input type="radio" id="radio2" name="radioGroup" value="mode2">
     <label for="radio2">ファイルも含めた階層</label><br>
-    <br><br>
+    <br>
 
     <input type="submit" id="submitButton" value="実行"> <!-- IDを追加 -->
   </form>
@@ -73,7 +73,7 @@
           }
         })
         ._getPutMess();
-      setTimeout(_putMess, 1000); // 1秒ごとにポーリング
+      setTimeout(_putMess, 500); // 0.5秒ごとにポーリング
     }
 
     function _putStartMess() {
@@ -81,7 +81,7 @@
         .withSuccessHandler(function(result) {
           document.getElementById('textBox').innerText = result;
         })
-        ._setPutMess("HelloWord");
+        ._setPutMess("フォルダIDの代入とmodeの選択をしてください");
     }
 
     window.onload = function() {

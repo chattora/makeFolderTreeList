@@ -84,24 +84,22 @@ const testID = "1Y7t2_ZB9Gn2sjbO2ww3ASceGmL-R-SRu";
 //スクリプトのあるルート情報を取得
 function _getRootFolderInfo(){
 
-  const scriptId = ScriptApp.getScriptId();
+// mainformData = new _setFormData(testID,"mode1")
 
-  //const file = DriveApp.getFileById(scriptId);
+  try{
+    var folder = DriveApp.getFolderById(mainformData.id);
 
-  var folder = DriveApp.getFolderById(testID);
-  Logger.log("フォルダ名: " + folder.getName());
-  Logger.log("フォルダID: " + folder.getId());
- 
- 
-  const folders = file.getParents();
-
-  while(folders.hasNext()){
-    var folder = folders.next();
+    return{
+      folderName:folder.getName(),
+      folderId:folder.getId()
+    };
+  }catch(e)
+  {
+    Logger.log("エラー: " + e.message);
+    _logSheetPut("エラー: " + e.message);
+    return null;
   }
-  return{
-    folderName:folder.getName(),
-    folderId:folder.getId()
-  };
+
 }
 //リストを出力するスプレッドシートを作成する
 function _createRootSpreadSheet(folderId, sheetName){
@@ -122,21 +120,7 @@ function _createRootSpreadSheet(folderId, sheetName){
   return sheetId;
 }
 
-//初期化
-function _initProgress(progress)
-{
-  const scriptProperties = PropertiesService.getScriptProperties();
 
-  _sendStartMail(progress); //開始メール送信
-  _setConditional(progress.sheetId); //色付けルール設定
-  scriptProperties.setProperty(PROGRESS_PROPERTY, JSON.stringify(progress)); //データ保存
-  _clearTrigger(); //古いトリガーがあれば削除
-
-  ScriptApp.newTrigger(TRIGGER_FUNC)
-    .timeBased()
-    .after(RESTART_TIME) // 1分後に再実行
-    .create();
-}
 //セル色付けのための条件を設定
 function _setConditional(sheetId) {
 
@@ -270,38 +254,3 @@ function _getReaderEmails(permissionsArray) {
   return emailsString;
 }
 
-//--------------------------------------------------------------------------------------------------------------------------------------------
-// DOM関連
-//--------------------------------------------------------------------------------------------------------------------------------------------
-
-// HTMLから呼び出すためのdoGet関数
-function doGet() {
-  return HtmlService.createHtmlOutputFromFile('index');
-}
-//ステータスメッセージの設定
-function _setPutMess(message) {
-  statusMessage = message;
-  return statusMessage
-}
-//ステータスメッセージの取得
-function _getPutMess() {
-
-  return statusMessage;
-}
-
-function _setForm(formData) {
-  
- statusMessage = "実行中：おまちください";
- mainformData = new _setFormData(formData.inputId,formData.mode)
-//  statusMessage = "入力されたテキスト: " + mainformData.id + "\n選択されたラジオオプション: " + mainformData.mode;
-_logSheetPut(mainformData.id);
-_logSheetPut(mainformData.mode);
- //_main(); 
-  // メッセージを設定
-  return statusMessage;
-
-
-//_setPutMess ("入力されたテキスト: " + inputTextValue + "\n選択されたラジオオプション: " + radioOptionValue);
-  // データを処理し、結果を返す
- // return "入力されたテキスト: " + inputTextValue + "\n選択されたラジオオプション: " + radioOptionValue;
-}
