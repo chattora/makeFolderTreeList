@@ -1,6 +1,11 @@
 /******************************
  *  myFuncs
  ******************************/
+//フォームデータの構造体　コンストラクタ関数
+ function _setFormData(id,mode) {
+  this.id = id;
+  this.mode = mode;
+}
 // 実行者のメールアドレスを取得
  function _getUserEmail() {
   try {
@@ -74,11 +79,20 @@ function _sendErrorMail(errorMessage) {
   
   MailApp.sendEmail(recipient, subject, body);
 }
+
+const testID = "1Y7t2_ZB9Gn2sjbO2ww3ASceGmL-R-SRu";
 //スクリプトのあるルート情報を取得
 function _getRootFolderInfo(){
 
   const scriptId = ScriptApp.getScriptId();
-  const file = DriveApp.getFileById(scriptId);
+
+  //const file = DriveApp.getFileById(scriptId);
+
+  var folder = DriveApp.getFolderById(testID);
+  Logger.log("フォルダ名: " + folder.getName());
+  Logger.log("フォルダID: " + folder.getId());
+ 
+ 
   const folders = file.getParents();
 
   while(folders.hasNext()){
@@ -275,18 +289,14 @@ function _getPutMess() {
   return statusMessage;
 }
 
-var hogein;
 function _setForm(formData) {
   
-  const inputTextValue = formData.inputText;
-  hogein = formData.radioOption;
-
- 
-
-
-  statusMessage = "入力されたテキスト: " + inputTextValue + "\n選択されたラジオオプション: " + hogein;
-
- _main(); 
+ statusMessage = "実行中：おまちください";
+ mainformData = new _setFormData(formData.inputId,formData.mode)
+//  statusMessage = "入力されたテキスト: " + mainformData.id + "\n選択されたラジオオプション: " + mainformData.mode;
+_logSheetPut(mainformData.id);
+_logSheetPut(mainformData.mode);
+ //_main(); 
   // メッセージを設定
   return statusMessage;
 

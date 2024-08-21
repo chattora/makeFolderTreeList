@@ -3,6 +3,7 @@
  ******************************/
  var itemCnt;
  var statusMessage  = "";
+ var mainformData;
 /******************************
  *  Constant
  ******************************/
@@ -48,7 +49,7 @@ function _main()
   itemCnt =0;
 _setPutMess("実行しますがががが");
 
-console.log("TEST");
+_logSheetPut("TEST");
   try {
     _runProcessing();
   } catch (e) {
