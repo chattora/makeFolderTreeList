@@ -26,8 +26,8 @@ function _runProcessing() {
   const scriptProperties = PropertiesService.getScriptProperties();
   const startTime = Date.now(); 
   const userMail = _getUserEmail();
-  var rootFolederInfo;
   var progress = scriptProperties.getProperty(PROGRESS_PROPERTY);
+  _setPutMess("実行中です。");
 
   //保存データがあるかないかで初期処理を行う
   if(progress === null)
@@ -42,7 +42,7 @@ function _runProcessing() {
     }
     else
     {
-        const defaultData = {
+       const defaultData = {
         folderQueue: [{ id: rootFolederInfo.folderId, layer: 0 }],
         folderListArray: [],
         colorArray: [],
@@ -50,18 +50,20 @@ function _runProcessing() {
         sheetId: null,
         email: userMail,
         folderName: rootFolederInfo.folderName,
-        itemCnt: itemCnt,
+        itemCnt: 0,
         mode: 0,
         folderId: null,
        };
 
       defaultData.sheetId = _createRootSpreadSheet(rootFolederInfo.folderId,rootFolederInfo.folderName);
-     // progress = JSON.stringify(defaultData);
       _initProgress(defaultData);
       Logger.log('初期設定が完了しました');
       _logSheetPut ('初期設定が完了しました');
       _savePropertiesToFile(); //デバッグ用に保存データを書き出し
       _logSheetPut ('floderID' + rootFolederInfo.folderId);
+      _setPutMess("設定が完了します。")
+
+
       return
 
     }
@@ -81,7 +83,7 @@ function _runProcessing() {
       sheetId:null,
       email:userMail,
       folderName:rootFolederInfo.folderName,
-      itemCnt:itemCnt,
+      itemCnt:0,
       mode:0,
       folderId:null,
   }));
@@ -102,12 +104,15 @@ function _runProcessing() {
 
   //処理の完了を判定
   if (progress.folderQueue.length === 0) {
-    scriptProperties.deleteProperty(PROGRESS_PROPERTY);
-    Logger.log('フォルダ階層の取得が完了しました');
+      _logSheetPut('ファイナライズ');
+      _setPutMess("ファイナライズ");
 
+_savePropertiesToFile();
     // 全てのフォルダが処理された後にシートに書き出す
     _writeSheetList(progress);
     _sendEndMail(progress);
+    scriptProperties.deleteProperty(PROGRESS_PROPERTY);
+    Logger.log('フォルダ階層の取得が完了しました');
 
   } else {
     scriptProperties.setProperty(PROGRESS_PROPERTY, JSON.stringify(progress));
@@ -133,9 +138,10 @@ function _folderList(progress) {
         progress.folderListArray = [];
         progress.colorArray = [];
       }
-      _savePropertiesToFile(); //デバッグ用に保存データを書き出し
       PropertiesService.getScriptProperties().setProperty(PROGRESS_PROPERTY, JSON.stringify(progress));
+      _savePropertiesToFile(); //デバッグ用に保存データを書き出し
       Logger.log('タイムアウトが発生しました。処理を中断し、次回に続きます。');
+      _logSheetPut('タイムアウトが発生しました。処理を中断し、次回に続きます。');
       return;
     }
 

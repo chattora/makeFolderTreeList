@@ -8,26 +8,28 @@ function doGet() {
 }
 //ステータスメッセージの設定
 function _setPutMess(message) {
-  statusMessage = message;
-  return statusMessage
+
+  var scriptProperties = PropertiesService.getScriptProperties();
+  scriptProperties.setProperty(STATUS_MESSAGE, message);
+  return message;
+
+ // statusMessage = message;
+ // return statusMessage
 }
 //ステータスメッセージの取得
 function _getPutMess() {
+  var scriptProperties = PropertiesService.getScriptProperties();
+  var statusMessage = scriptProperties.getProperty(STATUS_MESSAGE);
   return statusMessage;
 }
 
 function _setForm(formData) {
   
- statusMessage = "実行中：おまちください";
- mainformData = new _setFormData(formData.inputId,formData.mode)
+ //statusMessage = "実行中：おまちください";
+ _setPutMess("実行中：おまちを");
+ //mainformData = new _setFormData(formData.inputId,formData.mode)
 //  statusMessage = "入力されたテキスト: " + mainformData.id + "\n選択されたラジオオプション: " + mainformData.mode;
-
- _main(); 
+ //_main(); 
   // メッセージを設定
-  return statusMessage;
-
-
-//_setPutMess ("入力されたテキスト: " + inputTextValue + "\n選択されたラジオオプション: " + radioOptionValue);
-  // データを処理し、結果を返す
- // return "入力されたテキスト: " + inputTextValue + "\n選択されたラジオオプション: " + radioOptionValue;
+  return formData;
 }

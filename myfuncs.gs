@@ -70,11 +70,9 @@ function _sendEndMail(progress) {
 function _sendErrorMail(errorMessage) {
 
   const recipient = Session.getActiveUser().getEmail(); // ユーザーのメアド取得
-  const scriptName = Session.getScriptName(); // スクリプトファイル名を取得
-  const subject = scriptName + ' のエラー通知';
+  const subject = ' makeFolderTreeのエラー通知';
   const body = 'スクリプトでエラーが発生しました:\n\n' +
                'エラーメッセージ: ' + errorMessage + '\n' +
-               'スクリプト名: ' + scriptName + '\n' +
                '発生日時: ' + new Date();
   
   MailApp.sendEmail(recipient, subject, body);
@@ -84,7 +82,7 @@ const testID = "1Y7t2_ZB9Gn2sjbO2ww3ASceGmL-R-SRu";
 //スクリプトのあるルート情報を取得
 function _getRootFolderInfo(){
 
-// mainformData = new _setFormData(testID,"mode1")
+//mainformData = new _setFormData(testID,"mode1")
 
   try{
     var folder = DriveApp.getFolderById(mainformData.id);
@@ -158,7 +156,10 @@ function _setConditional(sheetId) {
 
   //_setHierarcheyColor(sheet,progress.colorArray); //処理が重いのでスキップ
 
-  sheet.getRange(sheet.getLastRow() + START_ROW,START_COW,progress.folderListArray.length,progress.folderListArray[0].length).setValues(progress.folderListArray);
+  if(progress.folderListArray[0].length > 0)
+  {
+    sheet.getRange(sheet.getLastRow() + START_ROW,START_COW,progress.folderListArray.length,progress.folderListArray[0].length).setValues(progress.folderListArray);
+  }
 
  }
 //階層を色ごとに分ける
@@ -253,4 +254,19 @@ function _getReaderEmails(permissionsArray) {
   
   return emailsString;
 }
+
+function _checkRunFun() {
+  // 現在のトリガーを取得
+  const triggers = ScriptApp.getProjectTriggers();
+  
+  // トリガーが既に設定されているか確認
+  const isTriggered = triggers.some(trigger => trigger.getHandlerFunction() === TRIGGER_FUNC);
+
+  if (isTriggered) {
+    Logger.log('関数がすでにトリガーに設定されているため、実行をスキップします。');
+    return false; // 関数の実行をスキップ
+  }
+  return true;
+}
+
 

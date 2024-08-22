@@ -1,6 +1,7 @@
-const DEBUG = false; //Propertiesのログを出力しない場合は　false
+const DEBUG = true; //Propertiesのログを出力しない場合は　false
 const LOG_PUT = true;
 const LOG_SHEET_ID = "1y99Db9BY_rQBCOXiuIVBsAeIZQsLJGKF388pR941amg";
+
 //保存データを出力する　
 //デバッグとして使用
 function _savePropertiesToFile() {
@@ -26,6 +27,9 @@ function _delProperty()
 {
   const scriptProperties = PropertiesService.getScriptProperties();
   scriptProperties.deleteProperty(PROGRESS_PROPERTY);
+  scriptProperties.deleteProperty(EXECUTION_FLAG_KEY);
+
+
 }
 
 function _logSheetPut(message) {
@@ -43,22 +47,13 @@ function _logSheetPut(message) {
   const nextRow = lastRow + 1;
 
   // データを指定の行に書き込む（ここでは1行目にdataを追加）
-  sheet.getRange(nextRow, 1).setValue(message);
+  sheet.getRange(nextRow, 1).setValue(message +  new Date() );
 }
 
-const FOLDER_ID = "0ABzH79vbRLR_Uk9PVA";
-
-function temp()
-{
-   getSharedDriveFolderById(FOLDER_ID);
+function _getMyDriveId() {
+  // マイドライブのルートフォルダを取得
+  const rootFolder = DriveApp.getRootFolder();
+  
+  // ルートフォルダのIDをログに出力
+  Logger.log('マイドライブのルートフォルダID: ' + rootFolder.getId());
 }
-
-function getSharedDriveFolderById(folderId) {
-  var folder = DriveApp.getFolderById(folderId);
-  Logger.log("フォルダ名: " + folder.getName());
-  Logger.log("フォルダID: " + folder.getId());
-
-  return folder;
-}
-
-

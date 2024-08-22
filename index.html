@@ -18,7 +18,7 @@
     <input type="text" id="inputId" required>
     <br><br>
 
-    <label>出力モードを選択してください:</label>
+    <label>出力モードを選択してください→:</label>
     <br>
     <input type="radio" id="radio1" name="radioGroup" value="mode1" required>
     <label for="radio1">フォルダのみの階層（ファイル数が多いと予想される場合はこちら）</label><br>
@@ -30,10 +30,11 @@
   </form>
 
   <h3>▼StatusMessageを表示:</h3>
-  <div id="textBox">ここに実行状況のメッセージが表示されます</div>
+  <div id="textBox">ここにメッセージがでます</div>
 
   <script>
     var formSubmitted = false; // フォーム連打を防ぐためのフラグ
+    var pollingActive = true;
 
     function submitForm() {
       var submitButton = document.getElementById('submitButton');
@@ -55,8 +56,11 @@
       };
       google.script.run
         .withSuccessHandler(function(response) {
-          console.log(response);
+          console.log("サーバーからの応答:" + response); // <----- ここ変更した
           document.getElementById('textBox').innerText = response;
+          //フォームからの値をもってmainを実行
+          google.script.run._main(response);
+
         })
         .withFailureHandler(function(error) {
           console.error('GAS関数呼び出し中にエラーが発生しました:', error);
@@ -65,25 +69,55 @@
         ._setForm(formData);
     }
 
-    function _putMess() {
-      google.script.run
-        .withSuccessHandler(function(result) {
-          if(result){
+    var pollingActive = true;
+
+    async function _putMess() {
+      while (pollingActive) {
+        try {
+          const result = await new Promise((resolve, reject) => {
+            google.script.run
+              .withSuccessHandler(resolve)
+              .withFailureHandler(reject)
+              ._getPutMess();
+          });
+
+          console.log("取得した結果:", result);
+
+          if (result) {
             document.getElementById('textBox').innerText = result;
+
+            // 特定の文字列が含まれているかチェック
+            if (result.includes("完了") || result.includes("終了")) {
+              console.log("処理が完了しました。ポーリングを停止します。");
+              pollingActive = false;
+              break; // whileループを抜けてポーリングを停止
+            }
           }
-        })
-        ._getPutMess();
-      setTimeout(_putMess, 500); // 0.5秒ごとにポーリング
+          // 次のポーリングまでの待機時間
+          await new Promise(resolve => setTimeout(resolve, 1000)); // 1秒待機
+
+        } catch (error) {
+          console.error('エラーが発生しました:', error);
+        }
+      }
+
+      if (!pollingActive) {
+        _displayCompletionMessage(); // ポーリング停止後に終了メッセージを表示
+      }
     }
 
     function _putStartMess() {
       google.script.run
         .withSuccessHandler(function(result) {
+          console.log("初期メッセージ:" + result); 
           document.getElementById('textBox').innerText = result;
         })
         ._setPutMess("フォルダIDの代入とmodeの選択をしてください");
     }
 
+    function _displayCompletionMessage() {
+      document.getElementById('textBox').innerText = "設定が完了しました。メールを確認したら、ブラウザを閉じてください。"; // メッセージを表示
+    }
     window.onload = function() {
       _putStartMess();
       _putMess(); // ページが読み込まれたときにポーリング開始
