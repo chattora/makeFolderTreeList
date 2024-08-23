@@ -159,6 +159,8 @@ function _folderList(progress) {
       progress.colorArray.push(layer);
       progress.itemCnt++;
       console.log("フォルダ→"+subFolder.getName() + "itemCnt = " + progress.itemCnt);
+      _logSheetPut("フォルダ→"+subFolder.getName() + "itemCnt = " + progress.itemCnt);
+
       progress.folderQueue.push({ id: folderId, layer: layer + 1 });
     }
     _logSheetPut("mode=" + progress.mode);
@@ -180,6 +182,8 @@ function _folderList(progress) {
         progress.colorArray.push(layer);   
         progress.itemCnt++;
         console.log("ファイル→"+file.getName() + "itemCnt = " + progress.itemCnt);
+        _logSheetPut("ファイル→"+file.getName() + "itemCnt = " + progress.itemCnt);
+
       }
     }
   }

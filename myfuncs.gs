@@ -161,6 +161,9 @@ function _setConditional(sheetId) {
  {
   const spreadSheet = SpreadsheetApp.openById(progress.sheetId);
   const sheet = spreadSheet.getActiveSheet();
+ 
+ _logSheetPut("folderListArray"+ progress.folderListArray.length);
+ _logSheetPut("folderListArray[0]"+ progress.folderListArray[0].length);
 
   if(progress.folderListArray[0].length > 0)
   {
