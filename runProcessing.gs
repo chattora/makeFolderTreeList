@@ -7,7 +7,8 @@
 *************************************************/
 function _initProgress(progress)
 {
-  const scriptProperties = PropertiesService.getScriptProperties();
+//  const scriptProperties = PropertiesService.getScriptProperties();
+  const scriptProperties = PropertiesService.getUserProperties();
 
   _sendStartMail(progress); //開始メール送信
   _setConditional(progress.sheetId); //色付けルール設定
@@ -31,10 +32,13 @@ _logSheetPut(mainformData.mode);
 *************************************************/
 function _runProcessing() {
 
-  const scriptProperties = PropertiesService.getScriptProperties();
+  //const scriptProperties = PropertiesService.getScriptProperties();
+  const scriptProperties = PropertiesService.getUserProperties();
+
   const startTime = Date.now(); 
   const userMail = _getUserEmail();
   var progress = scriptProperties.getProperty(PROGRESS_PROPERTY);
+  
   _setPutMess("実行中です。");
 
   //保存データがあるかないかで初期処理を行う
@@ -133,7 +137,9 @@ function _folderList(progress) {
         progress.folderListArray = [];
         progress.colorArray = [];
       }
-      PropertiesService.getScriptProperties().setProperty(PROGRESS_PROPERTY, JSON.stringify(progress));
+     // PropertiesService.getScriptProperties().setProperty(PROGRESS_PROPERTY, JSON.stringify(progress));
+      PropertiesService.getUserProperties().setProperty(PROGRESS_PROPERTY, JSON.stringify(progress));
+
       _savePropertiesToFile(); //デバッグ用に保存データを書き出し
       Logger.log('タイムアウトが発生しました。処理を中断し、次回に続きます。');
       _logSheetPut('タイムアウトが発生しました。処理を中断し、次回に続きます。');
@@ -159,6 +165,8 @@ function _folderList(progress) {
       progress.colorArray.push(layer);
       progress.itemCnt++;
       console.log("フォルダ→"+subFolder.getName() + "itemCnt = " + progress.itemCnt);
+      _logSheetPut("フォルダ→"+subFolder.getName() + "itemCnt = " + progress.itemCnt);
+
       progress.folderQueue.push({ id: folderId, layer: layer + 1 });
     }
     _logSheetPut("mode=" + progress.mode);
@@ -180,6 +188,8 @@ function _folderList(progress) {
         progress.colorArray.push(layer);   
         progress.itemCnt++;
         console.log("ファイル→"+file.getName() + "itemCnt = " + progress.itemCnt);
+        _logSheetPut("ファイル→"+file.getName() + "itemCnt = " + progress.itemCnt);
+
       }
     }
   }

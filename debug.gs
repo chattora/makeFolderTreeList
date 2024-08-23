@@ -17,7 +17,9 @@ function _savePropertiesToFile() {
 
   if ( DEBUG != true ) return;
 
-  const scriptProperties = PropertiesService.getScriptProperties();
+  //const scriptProperties = PropertiesService.getScriptProperties();
+  const scriptProperties = PropertiesService.getUserProperties();
+
   const allProperties = scriptProperties.getProperties();
   
   var fileContent = "Properties:\n";

@@ -161,6 +161,9 @@ function _setConditional(sheetId) {
  {
   const spreadSheet = SpreadsheetApp.openById(progress.sheetId);
   const sheet = spreadSheet.getActiveSheet();
+ 
+ _logSheetPut("folderListArray"+ progress.folderListArray.length);
+ _logSheetPut("folderListArray[0]"+ progress.folderListArray[0].length);
 
   if(progress.folderListArray[0].length > 0)
   {
@@ -284,7 +287,8 @@ function _getMyDriveId() {
 *************************************************/
 function _delProperty()
 {
-  const scriptProperties = PropertiesService.getScriptProperties();
+  //const scriptProperties = PropertiesService.getScriptProperties();
+  const scriptProperties = PropertiesService.getUserProperties();
   scriptProperties.deleteProperty(PROGRESS_PROPERTY);
   scriptProperties.deleteProperty(EXECUTION_FLAG_KEY);
   scriptProperties.deleteProperty(STATUS_MESSAGE);

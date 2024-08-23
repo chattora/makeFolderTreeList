@@ -17,7 +17,7 @@ const RESTART_TIME = 1 * 60 * 1000;
 const TRIGGER_FUNC = '_main';
 const MAX_EXECUTION_TIME = 10 * 60 * 1000; // Google有料版のタイムアウトが30分なので書き込み用のバッファを持って10分で強制終了
 const WRITE_ROW_MAX = 50000; //書き込み上限5万行に設定 
-const VERSION = "0.003";
+const VERSION = "0.004";
 
 // 保存データ　
 const PROGRESS_PROPERTY = 'processProgress';  //保存データ
@@ -55,7 +55,8 @@ const FOLDER_COLOR_TBL = [
 function _main(formData)
 {
   //実行状況を保存フラグで管理
-  const scriptProperties = PropertiesService.getScriptProperties();
+  //const scriptProperties = PropertiesService.getScriptProperties();
+  const scriptProperties = PropertiesService.getUserProperties();
   const isRunning = scriptProperties.getProperty(EXECUTION_FLAG_KEY);
 
   //フォームのデータを格納
