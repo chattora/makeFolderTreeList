@@ -1,27 +1,32 @@
-/******************************
- *  Global
- ******************************/
- var mainformData;
-/******************************
- *  Constant
- ******************************/
+/************************************************
+* coding by toshiyuki_maehashi@nnn.ac.jp
+*************************************************/
+
+/************************************************
+* グローバル 
+*************************************************/
+ var mainformData; //フォームデータ格納用
+
+/************************************************
+* 定数 
+*************************************************/
 const FOLDER_ICON = "📂";
 const START_COW = 1;
 const START_ROW = 1;
 const RESTART_TIME = 1 * 60 * 1000;
 const TRIGGER_FUNC = '_main';
 const MAX_EXECUTION_TIME = 10 * 60 * 1000; // Google有料版のタイムアウトが30分なので書き込み用のバッファを持って10分で強制終了
-const WRITE_ROW_MAX = 1000;
-const VERSION = "1.002";
+const WRITE_ROW_MAX = 50000; //書き込み上限5万行に設定 
+const VERSION = "0.003";
 
-//保存データ
+// 保存データ　
 const PROGRESS_PROPERTY = 'processProgress';  //保存データ
 const EXECUTION_FLAG_KEY = 'isRunning'; //実行中かどうかを判別（多重実行を防ぐための処理）
-const STATUS_MESSAGE = 'statusMessage';
+const STATUS_MESSAGE = 'statusMessage'; //状況メッセージ格納
 
-/******************************
- *  Data_table
- ******************************/
+/************************************************
+* 定数 
+*************************************************/
 //フォルダを色分けする色テーブル
 const FOLDER_COLOR_TBL = [
   '#e6b8af',
@@ -42,39 +47,59 @@ const FOLDER_COLOR_TBL = [
   '#c9daf8',
   '#d9d2e9',
   '#ead1dc',
+  '#e6b8af',
 ]
-/******************************
- *  MAIN
- ******************************/
+/************************************************
+* MAIN 
+*************************************************/
 function _main(formData)
 {
+  //実行状況を保存フラグで管理
   const scriptProperties = PropertiesService.getScriptProperties();
   const isRunning = scriptProperties.getProperty(EXECUTION_FLAG_KEY);
- 
+
   //フォームのデータを格納
   mainformData = new _setFormData(formData.inputId,formData.mode)
-
+//mainformData = new _setFormData("1Y7t2_ZB9Gn2sjbO2ww3ASceGmL-R-SRu","mode2")
+  
   if (isRunning === 'true') {
     Logger.log('すでに処理が実行中です。');
     _logSheetPut("すでにmainは実行されています");
     return;
   }
 
-  // 処理中フラグをセット
+  // MAIN実行中はフラグをセット
   scriptProperties.setProperty(EXECUTION_FLAG_KEY, 'true');
 
   try {
+
     _setPutMess("処理を設定しています。このままお待ちください");
-    _runProcessing();
+
+    //MAIN処理　書き込み上限を超えると-1を返す
+    const result = _runProcessing(); 
+
+    //書き込み上限の処理
+    if( result === -1)
+    {
+      throw new Error(
+        "リストへの書き込み上限"
+         + WRITE_ROW_MAX 
+         + "を超えました。\n"
+         +"フォルダのみの階層（ファイル数が多いと予想される場合はこちら）を選択し、再度実行してください"
+      
+      );
+    }
+    //html側と同期をとるため5秒待つ　
     Utilities.sleep(5000);
 
   } catch (e) {
     Logger.log('エラーが発生しました: ' + e.message);
     _sendErrorMail(e.message); // エラーメッセージをメールで送信
+    _delProperty();
     throw e; // エラーを再スローしてログに記録
   }finally{
+    //保存データの削除
     scriptProperties.deleteProperty(EXECUTION_FLAG_KEY);
     scriptProperties.deleteProperty(STATUS_MESSAGE);
   }
-
 }

@@ -1,9 +1,18 @@
-const DEBUG = true; //Propertiesのログを出力しない場合は　false
-const LOG_PUT = true;
-const LOG_SHEET_ID = "1y99Db9BY_rQBCOXiuIVBsAeIZQsLJGKF388pR941amg";
+/************************************************
+* DEBUG用関数群
+*************************************************/
 
-//保存データを出力する　
-//デバッグとして使用
+/************************************************
+* DEBUG用定数
+*************************************************/
+const DEBUG = false; //Propertiesのログを出力しない場合は　false
+const LOG_PUT = true; //trueの場合はログシートにログを書き出す
+const LOG_SHEET_ID = "1y99Db9BY_rQBCOXiuIVBsAeIZQsLJGKF388pR941amg"; //ログシートのシートID
+
+/************************************************
+* 保存データの出力
+* DEBUGがtrueの場合マイドライブに保存データを出力する
+*************************************************/
 function _savePropertiesToFile() {
 
   if ( DEBUG != true ) return;
@@ -17,21 +26,15 @@ function _savePropertiesToFile() {
     if (allProperties.hasOwnProperty(key)) {
       fileContent += key + ": " + allProperties[key] + "\n";
     }
-  }
-  
+  }  
   const file = DriveApp.createFile("debugProperties.txt", fileContent);
   Logger.log("Properties saved to: " + file.getUrl());
 }
-//property矯正削除　デバッグ用
-function _delProperty()
-{
-  const scriptProperties = PropertiesService.getScriptProperties();
-  scriptProperties.deleteProperty(PROGRESS_PROPERTY);
-  scriptProperties.deleteProperty(EXECUTION_FLAG_KEY);
-
-
-}
-
+/************************************************
+* ログシートへの書き出し
+* LOG_PUTがtrueの場合ログシートにログを書き出す
+* デプロイ後にコンソールメッセージが取得できないため
+*************************************************/
 function _logSheetPut(message) {
 
   if(LOG_PUT != true) return;
@@ -50,10 +53,3 @@ function _logSheetPut(message) {
   sheet.getRange(nextRow, 1).setValue(message +  new Date() );
 }
 
-function _getMyDriveId() {
-  // マイドライブのルートフォルダを取得
-  const rootFolder = DriveApp.getRootFolder();
-  
-  // ルートフォルダのIDをログに出力
-  Logger.log('マイドライブのルートフォルダID: ' + rootFolder.getId());
-}

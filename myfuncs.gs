@@ -1,12 +1,17 @@
-/******************************
- *  myFuncs
- ******************************/
-//フォームデータの構造体　コンストラクタ関数
- function _setFormData(id,mode) {
+/************************************************
+* 関数群 
+*************************************************/
+
+/************************************************
+* フォームデータの構造体　コンストラクタ関数 
+*************************************************/
+function _setFormData(id,mode) {
   this.id = id;
   this.mode = mode;
 }
-// 実行者のメールアドレスを取得
+/************************************************
+* 実行者のメールアドレスを取得 
+*************************************************/
  function _getUserEmail() {
   try {
     const email = Session.getActiveUser().getEmail();
@@ -19,7 +24,9 @@
     Logger.log('Error: ' + e.message);
   }
 }
-//開始メール送信
+/************************************************
+* 開始メール送信 
+*************************************************/
 function _sendStartMail(progress) {
   try {
     // 実行者のメールアドレスを取得
@@ -33,7 +40,6 @@ function _sendStartMail(progress) {
 
       // メールを送信
       MailApp.sendEmail(email, subject, body);
-      
       Logger.log('Email sent to: ' + email);
     } else {
       Logger.log('No email address found for the current user.');
@@ -42,7 +48,9 @@ function _sendStartMail(progress) {
     Logger.log('Error: ' + e.message);
   }
 }
-//終了メール送信
+/************************************************
+* 終了メール送信 
+*************************************************/
 function _sendEndMail(progress) {
   try {
     // 実行者のメールアドレスを取得
@@ -54,7 +62,6 @@ function _sendEndMail(progress) {
       const subject = progress.folderName + 'の階層リスト作成が完了しました';
       const body = 'リストが完了しました\n'
       +"url:" + url;
-
       // メールを送信
       MailApp.sendEmail(email, subject, body);
       
@@ -66,7 +73,9 @@ function _sendEndMail(progress) {
     Logger.log('Error: ' + e.message);
   }
 }
-//エラー通知用メール
+/************************************************
+* エラー通知用メール 
+*************************************************/
 function _sendErrorMail(errorMessage) {
 
   const recipient = Session.getActiveUser().getEmail(); // ユーザーのメアド取得
@@ -74,18 +83,15 @@ function _sendErrorMail(errorMessage) {
   const body = 'スクリプトでエラーが発生しました:\n\n' +
                'エラーメッセージ: ' + errorMessage + '\n' +
                '発生日時: ' + new Date();
-  
   MailApp.sendEmail(recipient, subject, body);
 }
-
-const testID = "1Y7t2_ZB9Gn2sjbO2ww3ASceGmL-R-SRu";
-//スクリプトのあるルート情報を取得
+/************************************************
+* ルート情報を取得
+*************************************************/
 function _getRootFolderInfo(){
 
-//mainformData = new _setFormData(testID,"mode1")
-
   try{
-    var folder = DriveApp.getFolderById(mainformData.id);
+    const folder = DriveApp.getFolderById(mainformData.id);
 
     return{
       folderName:folder.getName(),
@@ -97,9 +103,10 @@ function _getRootFolderInfo(){
     _logSheetPut("エラー: " + e.message);
     return null;
   }
-
 }
-//リストを出力するスプレッドシートを作成する
+/************************************************
+* リストを出力するスプレッドシートを作成する
+*************************************************/
 function _createRootSpreadSheet(folderId, sheetName){
 
   const spreadSheet = SpreadsheetApp.create(sheetName + "の階層リストシート_ver" + VERSION );
@@ -117,9 +124,9 @@ function _createRootSpreadSheet(folderId, sheetName){
   }
   return sheetId;
 }
-
-
-//セル色付けのための条件を設定
+/************************************************
+* セル色付けのための条件を設定
+*************************************************/
 function _setConditional(sheetId) {
 
   const sheet = SpreadsheetApp.openById(sheetId).getActiveSheet();
@@ -147,39 +154,25 @@ function _setConditional(sheetId) {
   }
   sheet.setConditionalFormatRules(rules);
 }
-
-//リストをシートに書き出す
+/************************************************
+* リストをシートに書き出す
+*************************************************/
  function _writeSheetList(progress)
  {
   const spreadSheet = SpreadsheetApp.openById(progress.sheetId);
   const sheet = spreadSheet.getActiveSheet();
 
-  //_setHierarcheyColor(sheet,progress.colorArray); //処理が重いのでスキップ
-
   if(progress.folderListArray[0].length > 0)
   {
     sheet.getRange(sheet.getLastRow() + START_ROW,START_COW,progress.folderListArray.length,progress.folderListArray[0].length).setValues(progress.folderListArray);
   }
-
  }
-//階層を色ごとに分ける
-function _setHierarcheyColor(sheet,colorArray)
-{
-    for(let i=0; i< colorArray.length;i++)
-  {
-    if( isNaN(colorArray[i]) == false )
-    {
-      const range = sheet.getRange( (sheet.getLastRow()+ i ) +START_ROW, START_COW,1,3);
-      range.setBackground(FOLDER_COLOR_TBL[ colorArray[i] % FOLDER_COLOR_TBL.length ]);
-      range.setHorizontalAlignment("right"); // 右寄せに設定
-    }
-  }
-}
-//フォルダ・ファイルの権限を取得
+/************************************************
+* フォルダ・ファイルの権限を取得
+*************************************************/
 function _getPermissions(fileId) {
 
   var permissionArray  = [];
-
   try {
     // Drive API を使用してファイルの権限情報を取得する
     let permissions = Drive.Permissions.list(fileId, {
@@ -202,8 +195,9 @@ function _getPermissions(fileId) {
   }
   return permissionArray;
 }
-
-//トリガーの削除
+/************************************************
+* トリガーの削除 
+*************************************************/
 function _clearTrigger() {
   const triggers = ScriptApp.getProjectTriggers();
   for (let i = 0; i < triggers.length; i++) {
@@ -212,8 +206,9 @@ function _clearTrigger() {
     }
   }
 }
-
-//管理者のroleを持つ権限の email だけを取り出す
+/************************************************
+* 管理者のroleを持つ権限の email だけを取り出す 
+*************************************************/
 function _getOrganizerEmails(permissionsArray) {
   const emailsArray = permissionsArray
     .filter(function(permission) {
@@ -226,7 +221,9 @@ function _getOrganizerEmails(permissionsArray) {
   const emailsString = emailsArray.length === 0 ? '-': emailsArray.join(', ');
   return emailsString;
 }
-//編集者のroleを持つ権限の email だけを取り出す
+/************************************************
+* 編集者のroleを持つ権限の email だけを取り出す 
+*************************************************/
 function _getWriterEmails(permissionsArray) {
   const emailsArray = permissionsArray
     .filter(function(permission) {
@@ -240,7 +237,9 @@ function _getWriterEmails(permissionsArray) {
   
   return emailsString;
 }
-//閲覧者のroleを持つ権限の email だけを取り出す
+/************************************************
+* 閲覧者のroleを持つ権限の email だけを取り出す 
+*************************************************/
 function _getReaderEmails(permissionsArray) {
   const emailsArray = permissionsArray
     .filter(function(permission) {
@@ -254,7 +253,9 @@ function _getReaderEmails(permissionsArray) {
   
   return emailsString;
 }
-
+/************************************************
+* トリガーに任意のタスクが追加されているのか確認する 
+*************************************************/
 function _checkRunFun() {
   // 現在のトリガーを取得
   const triggers = ScriptApp.getProjectTriggers();
@@ -268,5 +269,24 @@ function _checkRunFun() {
   }
   return true;
 }
-
+/************************************************
+* マイドライブのドライブIDを取得
+*************************************************/
+function _getMyDriveId() {
+  // マイドライブのルートフォルダを取得
+  const rootFolder = DriveApp.getRootFolder();
+  
+  // ルートフォルダのIDをログに出力
+  Logger.log('マイドライブのルートフォルダID: ' + rootFolder.getId());
+}
+/************************************************
+* 保存データの削除 
+*************************************************/
+function _delProperty()
+{
+  const scriptProperties = PropertiesService.getScriptProperties();
+  scriptProperties.deleteProperty(PROGRESS_PROPERTY);
+  scriptProperties.deleteProperty(EXECUTION_FLAG_KEY);
+  scriptProperties.deleteProperty(STATUS_MESSAGE);
+}
 

@@ -1,4 +1,10 @@
-//初期化
+/************************************************
+* MAINの実行関数 
+*************************************************/
+
+/************************************************
+* 保存データの初期化 
+*************************************************/
 function _initProgress(progress)
 {
   const scriptProperties = PropertiesService.getScriptProperties();
@@ -20,7 +26,9 @@ _logSheetPut(mainformData.mode);
     .after(RESTART_TIME) // 1分後に再実行
     .create();
 }
-//メイン処理
+/************************************************
+* メイン処理 
+*************************************************/
 function _runProcessing() {
 
   const scriptProperties = PropertiesService.getScriptProperties();
@@ -42,6 +50,7 @@ function _runProcessing() {
     }
     else
     {
+      //初期データ
        const defaultData = {
         folderQueue: [{ id: rootFolederInfo.folderId, layer: 0 }],
         folderListArray: [],
@@ -62,10 +71,7 @@ function _runProcessing() {
       _savePropertiesToFile(); //デバッグ用に保存データを書き出し
       _logSheetPut ('floderID' + rootFolederInfo.folderId);
       _setPutMess("設定が完了します。")
-
-
       return
-
     }
   }
   else
@@ -73,48 +79,30 @@ function _runProcessing() {
      progress = JSON.parse(progress);
      _logSheetPut("2回目以降の処理");
   }
-/*
-  //保存用データがない場合は初期値
-  progress = JSON.parse(scriptProperties.getProperty(PROGRESS_PROPERTY) || JSON.stringify({
-    folderQueue: [{ id: rootFolederInfo.folderId, layer: 0 }],
-      folderListArray:[],
-      colorArray:[],
-      startTime: startTime,
-      sheetId:null,
-      email:userMail,
-      folderName:rootFolederInfo.folderName,
-      itemCnt:0,
-      mode:0,
-      folderId:null,
-  }));
   
-  if(!progress.sheetId) //シートがなかったら作成する
-  {
-    progress.sheetId = _createRootSpreadSheet(rootFolederInfo.folderId,rootFolederInfo.folderName);
-    _initProgress(progress);
-    Logger.log('初期設定が完了しました');
-    _logSheetPut ('初期設定が完了しました');
-    _savePropertiesToFile(); //デバッグ用に保存データを書き出し
-    return;
-  }
-*/
   //リストの階層化
-  _folderList(progress);
+  const listRes = _folderList(progress);
   _clearTrigger(); //古いトリガーがあれば削除
 
-  //処理の完了を判定
-  if (progress.folderQueue.length === 0) {
-      _logSheetPut('ファイナライズ');
-      _setPutMess("ファイナライズ");
+  if(listRes === -1 ) //書き込み上限超えてる場合mainにエラーを返す
+  {
+    return -1;
+  }
 
-_savePropertiesToFile();
-    // 全てのフォルダが処理された後にシートに書き出す
+  //処理の完了を判定
+  if (progress.folderQueue.length === 0) { 
+    //完了時の処理
+    _logSheetPut('ファイナライズ');
+    _setPutMess("ファイナライズ");
+    _savePropertiesToFile();
     _writeSheetList(progress);
     _sendEndMail(progress);
+    //保存データの削除
     scriptProperties.deleteProperty(PROGRESS_PROPERTY);
     Logger.log('フォルダ階層の取得が完了しました');
 
   } else {
+    //完了していない場合はトリガーに追加
     scriptProperties.setProperty(PROGRESS_PROPERTY, JSON.stringify(progress));
      ScriptApp.newTrigger(TRIGGER_FUNC)
              .timeBased()
@@ -122,12 +110,19 @@ _savePropertiesToFile();
              .create();
   }
 }
-//階層リストの作成
+/************************************************
+* 階層リストの作成 
+* 書き込み上限を超えた場合　-1を返す
+*************************************************/
 function _folderList(progress) {
   const startTime = Date.now();
 
   while (progress.folderQueue.length > 0) {
-
+    //書き込み上限超えたら
+    if(progress.itemCnt >= WRITE_ROW_MAX) 
+    {
+       return -1;
+    }
     // タイムアウトチェック
     if ( ( (Date.now() - startTime) >= MAX_EXECUTION_TIME ) ) {
 
@@ -167,6 +162,7 @@ function _folderList(progress) {
       progress.folderQueue.push({ id: folderId, layer: layer + 1 });
     }
     _logSheetPut("mode=" + progress.mode);
+    
     //mode2であればファイルも探索
     if(progress.mode == "mode2")
     {
