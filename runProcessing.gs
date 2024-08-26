@@ -206,6 +206,7 @@ function _folderList(progress) {
         _logSheetPut("ファイル→"+file.getName() + "itemCnt = " + progress.itemCnt);
         loopCnt = 0;
 
+
       }
     }
   
