@@ -7,7 +7,8 @@
 *************************************************/
 function _initProgress(progress)
 {
-  const scriptProperties = PropertiesService.getScriptProperties();
+//  const scriptProperties = PropertiesService.getScriptProperties();
+  const scriptProperties = PropertiesService.getUserProperties();
 
   _sendStartMail(progress); //開始メール送信
   _setConditional(progress.sheetId); //色付けルール設定
@@ -18,6 +19,7 @@ _logSheetPut(mainformData.mode);
 
   progress.mode = mainformData.mode;
   progress.folderId = mainformData.id;
+  _setPutMess("設定が完了します。")
   scriptProperties.setProperty(PROGRESS_PROPERTY, JSON.stringify(progress)); //データ保存
   _clearTrigger(); //古いトリガーがあれば削除
 
@@ -31,10 +33,13 @@ _logSheetPut(mainformData.mode);
 *************************************************/
 function _runProcessing() {
 
-  const scriptProperties = PropertiesService.getScriptProperties();
+  //const scriptProperties = PropertiesService.getScriptProperties();
+  const scriptProperties = PropertiesService.getUserProperties();
+
   const startTime = Date.now(); 
   const userMail = _getUserEmail();
   var progress = scriptProperties.getProperty(PROGRESS_PROPERTY);
+  
   _setPutMess("実行中です。");
 
   //保存データがあるかないかで初期処理を行う
@@ -70,7 +75,6 @@ function _runProcessing() {
       _logSheetPut ('初期設定が完了しました');
       _savePropertiesToFile(); //デバッグ用に保存データを書き出し
       _logSheetPut ('floderID' + rootFolederInfo.folderId);
-      _setPutMess("設定が完了します。")
       return
     }
   }
@@ -116,8 +120,14 @@ function _runProcessing() {
 *************************************************/
 function _folderList(progress) {
   const startTime = Date.now();
+  _logSheetPut("progress.folderQueue.length=" + progress.folderQueue.length);
+
+  var loopCnt = 0;
 
   while (progress.folderQueue.length > 0) {
+   
+    _logSheetPut("progress.folderQueue.length=" + progress.folderQueue.length);
+    
     //書き込み上限超えたら
     if(progress.itemCnt >= WRITE_ROW_MAX) 
     {
@@ -133,7 +143,9 @@ function _folderList(progress) {
         progress.folderListArray = [];
         progress.colorArray = [];
       }
-      PropertiesService.getScriptProperties().setProperty(PROGRESS_PROPERTY, JSON.stringify(progress));
+     // PropertiesService.getScriptProperties().setProperty(PROGRESS_PROPERTY, JSON.stringify(progress));
+      PropertiesService.getUserProperties().setProperty(PROGRESS_PROPERTY, JSON.stringify(progress));
+
       _savePropertiesToFile(); //デバッグ用に保存データを書き出し
       Logger.log('タイムアウトが発生しました。処理を中断し、次回に続きます。');
       _logSheetPut('タイムアウトが発生しました。処理を中断し、次回に続きます。');
@@ -145,6 +157,12 @@ function _folderList(progress) {
 
     const folders = folder.getFolders();
     const files = folder.getFiles();
+   
+    _logSheetPut("Cnt=" + progress.itemCnt);
+    _logSheetPut("id=" + id);
+    //_logSheetPut("folderQueue = " +  JSON.stringify(progress.folderQueue, null, 2))
+    _logSheetPut("Folder_name= " + folder.getName());
+    _logSheetPut("Folder_URL =" + folder.getUrl());
 
     // フォルダの処理
     while (folders.hasNext()) {
@@ -158,13 +176,16 @@ function _folderList(progress) {
       progress.folderListArray.push([FOLDER_ICON, subFolder.getName(), "フォルダ", subFolder.getUrl(), owners, writers, readers]);
       progress.colorArray.push(layer);
       progress.itemCnt++;
+      loopCnt=0;
       console.log("フォルダ→"+subFolder.getName() + "itemCnt = " + progress.itemCnt);
       _logSheetPut("フォルダ→"+subFolder.getName() + "itemCnt = " + progress.itemCnt);
 
       progress.folderQueue.push({ id: folderId, layer: layer + 1 });
     }
+
     _logSheetPut("mode=" + progress.mode);
-    
+    _logSheetPut("LoopCnt=" + loopCnt );
+
     //mode2であればファイルも探索
     if(progress.mode == "mode2")
     {
@@ -183,8 +204,24 @@ function _folderList(progress) {
         progress.itemCnt++;
         console.log("ファイル→"+file.getName() + "itemCnt = " + progress.itemCnt);
         _logSheetPut("ファイル→"+file.getName() + "itemCnt = " + progress.itemCnt);
+        loopCnt = 0;
+
 
       }
+    }
+  
+    if(loopCnt > 1)
+    {
+      _logSheetPut("ここに来てはいけないのでは？=" + loopCnt );
+      _logSheetPut("Cnt=" + progress.itemCnt);
+      _logSheetPut("id=" + id);
+    //  _logSheetPut("folderQueue = " +  JSON.stringify(progress.folderQueue, null, 2))
+      _logSheetPut("Folder_name= " + folder.getName());
+      _logSheetPut("Folder_URL =" + folder.getUrl());
+    }
+    else
+    {
+      loopCnt++;
     }
   }
 }

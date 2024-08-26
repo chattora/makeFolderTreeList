@@ -105,7 +105,7 @@
 </head>
 
 <body>
-  <h1>階層のリストを出力します　Ver 0.003</h1>
+  <h1>階層のリストを出力します　Ver 0.006</h1>
 
   <form onsubmit="event.preventDefault(); submitForm();">
     <label for="inputId">ドライブのIDもしくはフォルダのIDを入力してください:</label>
@@ -155,7 +155,7 @@
       google.script.run
         .withSuccessHandler(function(response) {
           console.log("サーバーからの応答:" + response);
-          document.getElementById('textBox').innerText = response;
+          document.getElementById('textBox').innerText = "開始します";
           google.script.run._main(response);
         })
         .withFailureHandler(function(error) {

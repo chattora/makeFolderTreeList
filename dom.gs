@@ -11,7 +11,9 @@ function doGet() {
 * ステータスメッセージの設定 
 *************************************************/
 function _setPutMess(message) {
-  const scriptProperties = PropertiesService.getScriptProperties();
+  //const scriptProperties = PropertiesService.getScriptProperties();
+  const scriptProperties = PropertiesService.getUserProperties();
+
   scriptProperties.setProperty(STATUS_MESSAGE, message);
   return message;
 }
@@ -19,7 +21,8 @@ function _setPutMess(message) {
 * ステータスメッセージの取得 
 *************************************************/
 function _getPutMess() {
-  const scriptProperties = PropertiesService.getScriptProperties();
+//  const scriptProperties = PropertiesService.getScriptProperties();
+  const scriptProperties = PropertiesService.getUserProperties();
   const statusMessage = scriptProperties.getProperty(STATUS_MESSAGE);
   return statusMessage;
 }

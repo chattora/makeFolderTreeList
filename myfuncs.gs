@@ -278,16 +278,20 @@ function _checkRunFun() {
 function _getMyDriveId() {
   // マイドライブのルートフォルダを取得
   const rootFolder = DriveApp.getRootFolder();
+  const id = rootFolder.getId();
   
   // ルートフォルダのIDをログに出力
-  Logger.log('マイドライブのルートフォルダID: ' + rootFolder.getId());
+  Logger.log('マイドライブのルートフォルダID: ' + id);
+
+  return id;
 }
 /************************************************
 * 保存データの削除 
 *************************************************/
 function _delProperty()
 {
-  const scriptProperties = PropertiesService.getScriptProperties();
+  //const scriptProperties = PropertiesService.getScriptProperties();
+  const scriptProperties = PropertiesService.getUserProperties();
   scriptProperties.deleteProperty(PROGRESS_PROPERTY);
   scriptProperties.deleteProperty(EXECUTION_FLAG_KEY);
   scriptProperties.deleteProperty(STATUS_MESSAGE);
