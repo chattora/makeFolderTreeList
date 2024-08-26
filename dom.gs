@@ -22,8 +22,7 @@ function _setPutMess(message) {
 *************************************************/
 function _getPutMess() {
 //  const scriptProperties = PropertiesService.getScriptProperties();
-   const scriptProperties = PropertiesService.getUserProperties();
-
+  const scriptProperties = PropertiesService.getUserProperties();
   const statusMessage = scriptProperties.getProperty(STATUS_MESSAGE);
   return statusMessage;
 }

@@ -278,9 +278,12 @@ function _checkRunFun() {
 function _getMyDriveId() {
   // マイドライブのルートフォルダを取得
   const rootFolder = DriveApp.getRootFolder();
+  const id = rootFolder.getId();
   
   // ルートフォルダのIDをログに出力
-  Logger.log('マイドライブのルートフォルダID: ' + rootFolder.getId());
+  Logger.log('マイドライブのルートフォルダID: ' + id);
+
+  return id;
 }
 /************************************************
 * 保存データの削除 

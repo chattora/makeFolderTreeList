@@ -52,6 +52,6 @@ function _logSheetPut(message) {
   const nextRow = lastRow + 1;
 
   // データを指定の行に書き込む（ここでは1行目にdataを追加）
-  sheet.getRange(nextRow, 1).setValue(message +  new Date() );
+  sheet.getRange(nextRow, 1).setValue(message + "　→" + new Date() );
 }
 
