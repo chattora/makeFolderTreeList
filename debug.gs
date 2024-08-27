@@ -7,7 +7,7 @@
 *************************************************/
 const DEBUG = false; //Propertiesのログを出力しない場合は　false
 const LOG_PUT = false; //trueの場合はログシートにログを書き出す
-const LOG_SHEET_ID = "1y99Db9BY_rQBCOXiuIVBsAeIZQsLJGKF388pR941amg"; //ログシートのシートID
+const LOG_SHEET_ID = "1y99Db9BY_rQBCOXiuIVBsAeIZQsLJGKF388pR941amg"; //ログシートのシートID 固定
 
 /************************************************
 * 保存データの出力

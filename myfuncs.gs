@@ -89,7 +89,6 @@ function _sendErrorMail(errorMessage) {
 * ルート情報を取得
 *************************************************/
 function _getRootFolderInfo(){
-
   try{
     const folder = DriveApp.getFolderById(mainformData.id);
 
@@ -172,7 +171,7 @@ function _getPermissions(fileId) {
 
   var permissionArray  = [];
   try {
-    // Drive API を使用してファイルの権限情報を取得する
+    // Drive API を使用してファイルの権限情報を取得
     let permissions = Drive.Permissions.list(fileId, {
       'supportsAllDrives': true,
       'includeItemsFromAllDrives': true
@@ -290,5 +289,13 @@ function _delProperty()
   scriptProperties.deleteProperty(PROGRESS_PROPERTY);
   scriptProperties.deleteProperty(EXECUTION_FLAG_KEY);
   scriptProperties.deleteProperty(STATUS_MESSAGE);
+}
+/************************************************
+* データのリセット
+*************************************************/
+function _resetData()
+{
+  _delProperty();
+  _clearTrigger();
 }
 

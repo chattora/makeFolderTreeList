@@ -17,7 +17,7 @@ const RESTART_TIME = 1 * 60 * 1000;
 const TRIGGER_FUNC = '_main';
 const MAX_EXECUTION_TIME = 10 * 60 * 1000; // Google有料版のタイムアウトが30分なので書き込み用のバッファを持って10分で強制終了
 const WRITE_ROW_MAX = 50000; //書き込み上限5万行に設定 
-const VERSION = "0.008";
+const VERSION = "0.009";
 
 // 保存データ　
 const PROGRESS_PROPERTY = 'processProgress';  //保存データ
@@ -55,7 +55,6 @@ const FOLDER_COLOR_TBL = [
 function _main(formData)
 {
   //実行状況を保存フラグで管理
-  //const scriptProperties = PropertiesService.getScriptProperties();
   const scriptProperties = PropertiesService.getUserProperties();
   const isRunning = scriptProperties.getProperty(EXECUTION_FLAG_KEY);
   const progress = scriptProperties.getProperty(PROGRESS_PROPERTY);
@@ -63,17 +62,15 @@ function _main(formData)
   //最初ならフォームのデータを格納
   if(progress === null)
   {
-//       mainformData = new _setFormData(_getMyDriveId(),"mode1");
-
     if(formData.inputId === "マイドライブ"){
       mainformData = new _setFormData(_getMyDriveId(),formData.mode)
     }
     else{
       mainformData = new _setFormData(formData.inputId,formData.mode)
     }
-  
   }
   
+  //mainの多重処理禁止
   if (isRunning === 'true') {
     Logger.log('すでに処理が実行中です。');
     _logSheetPut("すでにmainは実行されています");
@@ -82,6 +79,15 @@ function _main(formData)
 
   // MAIN実行中はフラグをセット
   scriptProperties.setProperty(EXECUTION_FLAG_KEY, 'true');
+
+  if(formData.inputId === "リセット")
+  {
+    _setPutMess("リセットが完了しました。")
+    _logSheetPut("リセットが完了");
+    Utilities.sleep(5000);
+    _resetData();
+    return;
+  }
 
   try {
 
@@ -98,7 +104,6 @@ function _main(formData)
          + WRITE_ROW_MAX 
          + "を超えました。\n"
          +"フォルダのみの階層（ファイル数が多いと予想される場合はこちら）を選択し、再度実行してください"
-      
       );
     }
     //html側と同期をとるため5秒待つ　

@@ -7,7 +7,6 @@
 *************************************************/
 function _initProgress(progress)
 {
-//  const scriptProperties = PropertiesService.getScriptProperties();
   const scriptProperties = PropertiesService.getUserProperties();
 
   _sendStartMail(progress); //開始メール送信
@@ -32,8 +31,6 @@ _logSheetPut(mainformData.mode);
 * メイン処理 
 *************************************************/
 function _runProcessing() {
-
-  //const scriptProperties = PropertiesService.getScriptProperties();
   const scriptProperties = PropertiesService.getUserProperties();
 
   const startTime = Date.now(); 
@@ -145,7 +142,6 @@ function _folderList(progress) {
         progress.folderListArray = [];
         progress.colorArray = [];
       }
-     // PropertiesService.getScriptProperties().setProperty(PROGRESS_PROPERTY, JSON.stringify(progress));
       PropertiesService.getUserProperties().setProperty(PROGRESS_PROPERTY, JSON.stringify(progress));
 
       _savePropertiesToFile(); //デバッグ用に保存データを書き出し
@@ -162,7 +158,6 @@ function _folderList(progress) {
    
     _logSheetPut("Cnt=" + progress.itemCnt);
     _logSheetPut("id=" + id);
-    //_logSheetPut("folderQueue = " +  JSON.stringify(progress.folderQueue, null, 2))
     _logSheetPut("Folder_name= " + folder.getName());
     _logSheetPut("Folder_URL =" + folder.getUrl());
 
@@ -181,7 +176,6 @@ function _folderList(progress) {
       loopCnt=0;
       console.log("フォルダ→"+subFolder.getName() + "　itemCnt = " + progress.itemCnt);
       _logSheetPut("フォルダ→"+subFolder.getName() + "　itemCnt = " + progress.itemCnt);
-
       progress.folderQueue.push({ id: folderId, layer: layer + 1 });
     }
 
