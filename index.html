@@ -105,7 +105,7 @@
 </head>
 
 <body>
-  <h1>階層のリストを出力します　Ver 0.006</h1>
+  <h1>階層のリストを出力します　Ver 0.008</h1>
 
   <form onsubmit="event.preventDefault(); submitForm();">
     <label for="inputId">ドライブのIDもしくはフォルダのIDを入力してください:</label>
@@ -133,6 +133,7 @@
   <script>
     var formSubmitted = false;
     var pollingActive = true;
+    var initialMessageSet = false;
 
     function submitForm() {
       var submitButton = document.getElementById('submitButton');
@@ -152,10 +153,11 @@
         inputId: document.getElementById('inputId').value,
         mode: document.querySelector('input[name="radioGroup"]:checked').value
       };
+      
       google.script.run
         .withSuccessHandler(function(response) {
           console.log("サーバーからの応答:" + response);
-          document.getElementById('textBox').innerText = "開始します";
+          document.getElementById('textBox').innerText = "処理を開始します";
           google.script.run._main(response);
         })
         .withFailureHandler(function(error) {
@@ -177,7 +179,7 @@
 
           console.log("取得した結果:", result);
 
-          if (result) {
+      if (result && result.trim() !== "") { // 空でないメッセージのみ表示
             document.getElementById('textBox').innerText = result;
 
             if (result.includes("完了") || result.includes("終了")) {
@@ -198,14 +200,17 @@
       }
     }
 
-    function _putStartMess() {
-      google.script.run
-        .withSuccessHandler(function(result) {
-          console.log("初期メッセージ:" + result); 
-          document.getElementById('textBox').innerText = result;
-        })
-        ._setPutMess("フォルダIDの代入とmodeの選択をしてください");
+function _putStartMess() {
+    if (!initialMessageSet) {
+        initialMessageSet = true;
+        google.script.run
+            .withSuccessHandler(function(result) {
+                console.log("初期メッセージ:" + result);
+                document.getElementById('textBox').innerText = result;
+            })
+            ._setPutMess("フォルダIDの代入とmodeの選択をしてください");
     }
+}
 
     function _displayCompletionMessage() {
       document.getElementById('textBox').innerText = "設定が完了しました。メールを確認したら、ブラウザを閉じてください。";

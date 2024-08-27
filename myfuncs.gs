@@ -162,13 +162,8 @@ function _setConditional(sheetId) {
   const spreadSheet = SpreadsheetApp.openById(progress.sheetId);
   const sheet = spreadSheet.getActiveSheet();
  
- _logSheetPut("folderListArray"+ progress.folderListArray.length);
- _logSheetPut("folderListArray[0]"+ progress.folderListArray[0].length);
+  sheet.getRange(sheet.getLastRow() + START_ROW,START_COW,progress.folderListArray.length,progress.folderListArray[0].length).setValues(progress.folderListArray);
 
-  if(progress.folderListArray[0].length > 0)
-  {
-    sheet.getRange(sheet.getLastRow() + START_ROW,START_COW,progress.folderListArray.length,progress.folderListArray[0].length).setValues(progress.folderListArray);
-  }
  }
 /************************************************
 * フォルダ・ファイルの権限を取得

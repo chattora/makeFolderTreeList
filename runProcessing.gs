@@ -40,7 +40,7 @@ function _runProcessing() {
   const userMail = _getUserEmail();
   var progress = scriptProperties.getProperty(PROGRESS_PROPERTY);
   
-  _setPutMess("実行中です。");
+  _setPutMess("初期ファイルを作成しています。");
 
   //保存データがあるかないかで初期処理を行う
   if(progress === null)
@@ -99,7 +99,10 @@ function _runProcessing() {
     _logSheetPut('ファイナライズ');
     _setPutMess("ファイナライズ");
     _savePropertiesToFile();
-    _writeSheetList(progress);
+
+    if (progress.folderListArray.length > 0) {
+      _writeSheetList(progress);
+    }
     _sendEndMail(progress);
     //保存データの削除
     scriptProperties.deleteProperty(PROGRESS_PROPERTY);
@@ -120,14 +123,13 @@ function _runProcessing() {
 *************************************************/
 function _folderList(progress) {
   const startTime = Date.now();
-  _logSheetPut("progress.folderQueue.length=" + progress.folderQueue.length);
-
   var loopCnt = 0;
 
   while (progress.folderQueue.length > 0) {
    
     _logSheetPut("progress.folderQueue.length=" + progress.folderQueue.length);
-    
+    console.log( "progress.folderQueue.length=" + progress.folderQueue.length);
+
     //書き込み上限超えたら
     if(progress.itemCnt >= WRITE_ROW_MAX) 
     {
@@ -177,8 +179,8 @@ function _folderList(progress) {
       progress.colorArray.push(layer);
       progress.itemCnt++;
       loopCnt=0;
-      console.log("フォルダ→"+subFolder.getName() + "itemCnt = " + progress.itemCnt);
-      _logSheetPut("フォルダ→"+subFolder.getName() + "itemCnt = " + progress.itemCnt);
+      console.log("フォルダ→"+subFolder.getName() + "　itemCnt = " + progress.itemCnt);
+      _logSheetPut("フォルダ→"+subFolder.getName() + "　itemCnt = " + progress.itemCnt);
 
       progress.folderQueue.push({ id: folderId, layer: layer + 1 });
     }

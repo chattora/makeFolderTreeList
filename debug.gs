@@ -6,7 +6,7 @@
 * DEBUG用定数
 *************************************************/
 const DEBUG = false; //Propertiesのログを出力しない場合は　false
-const LOG_PUT = true; //trueの場合はログシートにログを書き出す
+const LOG_PUT = false; //trueの場合はログシートにログを書き出す
 const LOG_SHEET_ID = "1y99Db9BY_rQBCOXiuIVBsAeIZQsLJGKF388pR941amg"; //ログシートのシートID
 
 /************************************************
