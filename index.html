@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <base target="_top">
   <style>
@@ -153,14 +154,14 @@
         inputId: document.getElementById('inputId').value,
         mode: document.querySelector('input[name="radioGroup"]:checked').value
       };
-      
+
       google.script.run
-        .withSuccessHandler(function(response) {
+        .withSuccessHandler(function (response) {
           console.log("サーバーからの応答:" + response);
           document.getElementById('textBox').innerText = "処理を開始します";
           google.script.run._main(response);
         })
-        .withFailureHandler(function(error) {
+        .withFailureHandler(function (error) {
           console.error('GAS関数呼び出し中にエラーが発生しました:', error);
           document.getElementById('textBox').innerText = 'エラーが発生しました: ' + error.message;
         })
@@ -179,7 +180,7 @@
 
           console.log("取得した結果:", result);
 
-      if (result && result.trim() !== "") { // 空でないメッセージのみ表示
+          if (result) {
             document.getElementById('textBox').innerText = result;
 
             if (result.includes("完了") || result.includes("終了")) {
@@ -188,10 +189,12 @@
               break;
             }
           }
+
           await new Promise(resolve => setTimeout(resolve, 1000));
 
         } catch (error) {
           console.error('エラーが発生しました:', error);
+          break;
         }
       }
 
@@ -200,26 +203,27 @@
       }
     }
 
-function _putStartMess() {
-    if (!initialMessageSet) {
+    function _putStartMess() {
+      if (!initialMessageSet) {
         initialMessageSet = true;
         google.script.run
-            .withSuccessHandler(function(result) {
-                console.log("初期メッセージ:" + result);
-                document.getElementById('textBox').innerText = result;
-            })
-            ._setPutMess("フォルダIDの代入とmodeの選択をしてください");
+          .withSuccessHandler(function (result) {
+            console.log("初期メッセージ:" + result);
+            document.getElementById('textBox').innerText = result;
+          })
+          ._setPutMess("フォルダIDの代入とmodeの選択をしてください");
+      }
     }
-}
 
     function _displayCompletionMessage() {
       document.getElementById('textBox').innerText = "設定が完了しました。メールを確認したら、ブラウザを閉じてください。";
     }
 
-    window.onload = function() {
+    window.onload = function () {
       _putStartMess();
       _putMess();
     }
   </script>
 </body>
+
 </html>
