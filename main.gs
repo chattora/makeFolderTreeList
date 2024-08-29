@@ -17,7 +17,13 @@ const RESTART_TIME = 1 * 60 * 1000;
 const TRIGGER_FUNC = '_main';
 const MAX_EXECUTION_TIME = 10 * 60 * 1000; // Google有料版のタイムアウトが30分なので書き込み用のバッファを持って10分で強制終了
 const WRITE_ROW_MAX = 50000; //書き込み上限5万行に設定 
-const VERSION = "0.009";
+const VERSION = "1.000";
+const endMessStatus = {
+  NONE:0,
+  DEFAULT: 1,
+  RESET: 2,
+  MAIN_ERR: -1,
+};
 
 // 保存データ　
 const PROGRESS_PROPERTY = 'processProgress';  //保存データ
@@ -74,7 +80,7 @@ function _main(formData)
   if (isRunning === 'true') {
     Logger.log('すでに処理が実行中です。');
     _logSheetPut("すでにmainは実行されています");
-    return;
+    return endMessStatus.MAIN_ERR;
   }
 
   // MAIN実行中はフラグをセット
@@ -82,11 +88,10 @@ function _main(formData)
 
   if(formData.inputId === "リセット")
   {
-    _setPutMess("リセットが完了しました。")
     _logSheetPut("リセットが完了");
-    Utilities.sleep(5000);
+  //  Utilities.sleep(5000);
     _resetData();
-    return;
+    return endMessStatus.RESET;
   }
 
   try {
@@ -107,7 +112,7 @@ function _main(formData)
       );
     }
     //html側と同期をとるため5秒待つ　
-    Utilities.sleep(5000);
+   // Utilities.sleep(5000);
 
   } catch (e) {
     Logger.log('エラーが発生しました: ' + e.message);
@@ -118,5 +123,6 @@ function _main(formData)
     //保存データの削除
     scriptProperties.deleteProperty(EXECUTION_FLAG_KEY);
     scriptProperties.deleteProperty(STATUS_MESSAGE);
+    return endMessStatus.DEFAULT;
   }
 }

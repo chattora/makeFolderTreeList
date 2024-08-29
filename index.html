@@ -106,7 +106,7 @@
 </head>
 
 <body>
-  <h1>階層のリストを出力します　Ver 0.009</h1>
+  <h1>階層のリストを出力します　Ver 1.000</h1>
 
   <form onsubmit="event.preventDefault(); submitForm();">
     <label for="inputId">ドライブのIDもしくはフォルダのIDを入力してください:</label>
@@ -135,6 +135,14 @@
     var formSubmitted = false;
     var pollingActive = true;
     var initialMessageSet = false;
+    var endMess = 0;
+
+    const endMessStatus = {
+      NONE:0,
+      DEFAULT: 1,
+      RESET: 2,
+      MAIN_ERR: -1,
+    };
 
     function submitForm() {
       var submitButton = document.getElementById('submitButton');
@@ -158,8 +166,21 @@
       google.script.run
         .withSuccessHandler(function (response) {
           console.log("サーバーからの応答:" + response);
-          document.getElementById('textBox').innerText = "処理を開始します";
-          google.script.run._main(response);
+          //document.getElementById('textBox').innerText = "処理を開始します";
+          google.script.run._setPutMess("処理を開始します");
+
+          google.script.run
+            .withSuccessHandler(function (mainRes) {
+              console.log("mainResの結果:", mainRes);
+              pollingActive = false;
+              endMess = mainRes;
+            })
+            .withFailureHandler(function (error) {
+              console.error('GAS関数呼び出し中にエラーが発生しました:', error);
+              document.getElementById('textBox').innerText = 'エラーが発生しました: ' + error.message;
+            })
+            ._main(response);
+
         })
         .withFailureHandler(function (error) {
           console.error('GAS関数呼び出し中にエラーが発生しました:', error);
@@ -182,12 +203,19 @@
 
           if (result) {
             document.getElementById('textBox').innerText = result;
-
+/*
             if (result.includes("完了") || result.includes("終了")) {
               console.log("処理が完了しました。ポーリングを停止します。");
               pollingActive = false;
+
+              if (result.includes("リセット")) {
+                endMess = 2;
+              } else {
+                endMess = 1;
+              }
               break;
             }
+            */
           }
 
           await new Promise(resolve => setTimeout(resolve, 1000));
@@ -216,7 +244,13 @@
     }
 
     function _displayCompletionMessage() {
-      document.getElementById('textBox').innerText = "設定が完了しました。メールを確認したら、ブラウザを閉じてください。";
+      if (endMess === endMessStatus.RESET) {
+        document.getElementById('textBox').innerText = "リセットが完了しました。メールを確認したら、ブラウザを閉じてください。";
+      } else if(endMess === endMessStatus.MAIN_ERR){
+        document.getElementById('textBox').innerText = "既に_mainが実行中です。完了までお待ちください";
+      }else{
+        document.getElementById('textBox').innerText = "設定が完了しました。メールを確認したら、ブラウザを閉じてください。";
+      }
     }
 
     window.onload = function () {
