@@ -22,6 +22,7 @@ const endMessStatus = {
   NONE:0,
   DEFAULT: 1,
   RESET: 2,
+  SHARE_LIST:3,
   MAIN_ERR: -1,
 };
 
@@ -86,12 +87,14 @@ function _main(formData)
   // MAIN実行中はフラグをセット
   scriptProperties.setProperty(EXECUTION_FLAG_KEY, 'true');
 
-  if(formData.inputId === "リセット")
-  {
+  //IDの内容によって処理を変更
+  if(formData.inputId === "リセット"){
     _logSheetPut("リセットが完了");
   //  Utilities.sleep(5000);
     _resetData();
     return endMessStatus.RESET;
+  } else if(formData.inputId === "共有リスト"){
+    return endMessStatus.SHARE_LIST;
   }
 
   try {
