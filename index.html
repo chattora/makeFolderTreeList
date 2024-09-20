@@ -106,7 +106,7 @@
 </head>
 
 <body>
-  <h1>階層のリストを出力します　Ver 1.000</h1>
+  <h1>階層のリストを出力します　Ver 2.000</h1>
 
   <form onsubmit="event.preventDefault(); submitForm();">
     <label for="inputId">ドライブのIDもしくはフォルダのIDを入力してください:</label>
@@ -122,6 +122,10 @@
     <div class="radio-container">
       <input type="radio" id="radio2" name="radioGroup" value="mode2">
       <label for="radio2">ファイルも含めた階層</label>
+    </div>
+    <div class="radio-container">
+      <input type="radio" id="radio3" name="radioGroup" value="mode3">
+      <label for="radio3">共有ドライブリストを作成</label>
     </div>
     <br>
 
@@ -141,6 +145,7 @@
       NONE:0,
       DEFAULT: 1,
       RESET: 2,
+      SHARE_LIST:3,
       MAIN_ERR: -1,
     };
 
@@ -248,7 +253,10 @@
         document.getElementById('textBox').innerText = "リセットが完了しました。メールを確認したら、ブラウザを閉じてください。";
       } else if(endMess === endMessStatus.MAIN_ERR){
         document.getElementById('textBox').innerText = "既に_mainが実行中です。完了までお待ちください";
-      }else{
+      }else if(endMess === endMessStatus.SHARE_LIST){
+        document.getElementById('textBox').innerText = "共有ドライブリストを作成しました。IDを指定したドライブを確認してください。";
+      }
+      else{
         document.getElementById('textBox').innerText = "設定が完了しました。メールを確認したら、ブラウザを閉じてください。";
       }
     }

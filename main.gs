@@ -5,7 +5,9 @@
 /************************************************
 * グローバル 
 *************************************************/
- var mainformData; //フォームデータ格納用
+var mainformData; //フォームデータ格納用
+var sharedDrivesListArray = [];
+var driveCount = 0;
 
 /************************************************
 * 定数 
@@ -17,7 +19,7 @@ const RESTART_TIME = 1 * 60 * 1000;
 const TRIGGER_FUNC = '_main';
 const MAX_EXECUTION_TIME = 10 * 60 * 1000; // Google有料版のタイムアウトが30分なので書き込み用のバッファを持って10分で強制終了
 const WRITE_ROW_MAX = 50000; //書き込み上限5万行に設定 
-const VERSION = "1.000";
+const VERSION = "2.000";
 const endMessStatus = {
   NONE:0,
   DEFAULT: 1,
@@ -30,6 +32,12 @@ const endMessStatus = {
 const PROGRESS_PROPERTY = 'processProgress';  //保存データ
 const EXECUTION_FLAG_KEY = 'isRunning'; //実行中かどうかを判別（多重実行を防ぐための処理）
 const STATUS_MESSAGE = 'statusMessage'; //状況メッセージ格納
+
+//共有ドライブリスト用
+const SHARE_LIST_START_COW = 1;
+const SHARE_LIST_START_ROW = 2;
+const SHARE_LIST_BASE_URL = 'https://drive.google.com/drive/folders/';
+
 
 /************************************************
 * 定数 
@@ -93,7 +101,14 @@ function _main(formData)
   //  Utilities.sleep(5000);
     _resetData();
     return endMessStatus.RESET;
-  } else if(formData.inputId === "共有リスト"){
+  } 
+    
+  //共有ドライブリストの作成
+  if(formData.mode === "mode3"){
+    const sheetId = _createShareListRootSpreadSheet(formData.inputId);
+    _setSharedDrives();
+    _writeShareListSheetList(sheetId);
+    _resetData();
     return endMessStatus.SHARE_LIST;
   }
 

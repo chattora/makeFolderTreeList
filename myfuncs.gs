@@ -1,6 +1,6 @@
-/************************************************
+/******************************************************************
 * 関数群 
-*************************************************/
+*******************************************************************/
 
 /************************************************
 * フォームデータの構造体　コンストラクタ関数 
@@ -298,4 +298,143 @@ function _resetData()
   _delProperty();
   _clearTrigger();
 }
+/******************************************************************
+* 共有ドライブリスト出力の関数群 
+*******************************************************************/
+
+function temp()
+{
+  var id = "0AE0CqegBstirUk9PVA";
+ var sheetId = _createShareListRootSpreadSheet(id);
+ _setSharedDrives();
+ _writeShareListSheetList(sheetId);
+}
+
+//スクリプトのあるルート情報を取得
+function _getShareListRootFolderInfo(id){
+  try{
+    const folder = DriveApp.getFolderById(id);
+      return{
+        folderName:folder.getName(),
+        folderId:folder.getId()
+      };
+  }catch(e)
+  {
+    Logger.log("エラー: " + e.message);
+    _logSheetPut("エラー: " + e.message);
+    return null;
+  }
+  console.log("herll")
+}
+
+//リストを出力するスプレッドシートを作成する
+function _createShareListRootSpreadSheet(folderId){
+  const sessionEmail = Session.getActiveUser().getEmail();
+  const spreadSheet = SpreadsheetApp.create(sessionEmail + "の共有ドライブリスト");
+  const sheetId = spreadSheet.getId();
+
+  if(folderId)
+  {
+    const sheet =  DriveApp.getFileById(sheetId);
+    const folder = DriveApp.getFolderById(folderId);
+    sheet.moveTo(folder);
+  }
+  return sheetId;
+}
+
+//リストをシートに書き出す
+ function _writeShareListSheetList(sheetId)
+ {
+  const spreadSheet = SpreadsheetApp.openById(sheetId);
+  const sheet = spreadSheet.getActiveSheet();
+  sheet.clear();
+
+  //ヘッダーの書き込み
+  sheet.appendRow(["ドライブ名", "ドライブID", "権限","ドライブ総数 " +driveCount]);
+
+  var dataToSet = sharedDrivesListArray.map(item => {
+    // 配列であれば、そのまま返す
+    if (Array.isArray(item)) {
+      return item.flat(Infinity);
+    }
+    return item;
+  });
+
+  // 最大列数を計算
+  var maxColumns = Math.max(...dataToSet.map(row => row.length));
+
+  // 各行の列数を最大列数に一致させるために `null` でパディング
+  var paddedArray = dataToSet.map(row => {
+    var newRow = row.slice(); // 元の行をコピー
+    while (newRow.length < maxColumns) {
+      newRow.push(null); // 列数を一致させるために `null` を追加
+    }
+    return newRow;
+  });
+
+  // データをシートに設定
+  sheet.getRange(SHARE_LIST_START_ROW, SHARE_LIST_START_COW, paddedArray.length, maxColumns).setValues(paddedArray);
+
+ }
+
+function _setSharedDrives() {
+  
+  DriveApp.getFolders(); 
+  var pageToken = null;
+  _setPutMess("共有ドライブを書き出しています。このまましばらくお待ちください。 ");
+  do {
+    var response = Drive.Drives.list({
+      pageToken: pageToken,
+      pageSize: 100 // 一度に最大100個の共有ドライブを取得
+    });
+    
+    var drives = response.items;
+
+    if (drives && drives.length > 0) {
+      for (let i = 0; i < drives.length; i++) {
+
+        var drive = drives[i];
+        var permissionEmailArray = [];
+
+        console.log('共有ドライブ名: %s, ID: %s', drive.name, drive.id);
+        // 共有ドライブの権限を取得
+        let permissionsResponse = Drive.Permissions.list(drive.id, {
+          supportsAllDrives: true
+        });
+
+        var permissions = permissionsResponse.items;
+
+        if (permissions && permissions.length > 0) {
+          for (var j = 0; j < permissions.length; j++) {
+            let permission = permissions[j];
+            //console.log('ユーザー: %s, 役割: %s', permission.emailAddress, permission.role);
+            
+            if(permission.role === 'owner'|| permission.role === 'organizer')
+            {
+              permissionEmailArray.push(permission.emailAddress);
+            }
+          }
+
+        } else {
+          console.log('権限情報は見つかりませんでした。');
+        }
+      //データの格納
+      sharedDrivesListArray.push(
+        [drive.name,SHARE_LIST_BASE_URL+drive.id,permissionEmailArray]
+      )
+        driveCount++;
+      }
+
+    } else {
+      console.log('共有ドライブは見つかりませんでした。');
+    }
+
+    // 次のページのトークンを設定
+    pageToken = response.nextPageToken;
+  } while (pageToken);
+  
+  Logger.log('総共有ドライブ数: ' + driveCount);
+}
+
+
 
