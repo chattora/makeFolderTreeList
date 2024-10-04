@@ -19,7 +19,7 @@ const RESTART_TIME = 1 * 60 * 1000;
 const TRIGGER_FUNC = '_main';
 const MAX_EXECUTION_TIME = 10 * 60 * 1000; // Google有料版のタイムアウトが30分なので書き込み用のバッファを持って10分で強制終了
 const WRITE_ROW_MAX = 50000; //書き込み上限5万行に設定 
-const VERSION = "2.000";
+const VERSION = "2.001";
 const endMessStatus = {
   NONE:0,
   DEFAULT: 1,
@@ -85,6 +85,14 @@ function _main(formData)
     }
   }
   
+  //IDの内容によって処理を変更
+  if(formData.inputId === "リセット"){
+    _logSheetPut("リセットが完了");
+  //  Utilities.sleep(5000);
+    _resetData();
+    return endMessStatus.RESET;
+  } 
+    
   //mainの多重処理禁止
   if (isRunning === 'true') {
     Logger.log('すでに処理が実行中です。');
@@ -95,14 +103,6 @@ function _main(formData)
   // MAIN実行中はフラグをセット
   scriptProperties.setProperty(EXECUTION_FLAG_KEY, 'true');
 
-  //IDの内容によって処理を変更
-  if(formData.inputId === "リセット"){
-    _logSheetPut("リセットが完了");
-  //  Utilities.sleep(5000);
-    _resetData();
-    return endMessStatus.RESET;
-  } 
-    
   //共有ドライブリストの作成
   if(formData.mode === "mode3"){
     const sheetId = _createShareListRootSpreadSheet(formData.inputId);

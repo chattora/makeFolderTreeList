@@ -301,6 +301,15 @@ function _resetData()
 /******************************************************************
 * 共有ドライブリスト出力の関数群 
 *******************************************************************/
+
+function temp()
+{
+  var id = "0AE0CqegBstirUk9PVA";
+ var sheetId = _createShareListRootSpreadSheet(id);
+ _setSharedDrives();
+ _writeShareListSheetList(sheetId);
+}
+
 //スクリプトのあるルート情報を取得
 function _getShareListRootFolderInfo(id){
   try{
