@@ -5,9 +5,10 @@
 /************************************************
 * フォームデータの構造体　コンストラクタ関数 
 *************************************************/
-function _setFormData(id,mode) {
+function _setFormData(id,mode,myDriveMode) {
   this.id = id;
   this.mode = mode;
+  this.myDriveMode = myDriveMode;
 }
 /************************************************
 * 実行者のメールアドレスを取得 
@@ -108,7 +109,15 @@ function _getRootFolderInfo(){
 *************************************************/
 function _createRootSpreadSheet(folderId, sheetName){
 
-  const spreadSheet = SpreadsheetApp.create(sheetName + "の階層リストシート_ver" + VERSION );
+  //マイドライブならメアドでスプレッドシート名を作成する
+  if(mainformData.myDriveMode == true){ 
+    const sessionEmail = Session.getActiveUser().getEmail();
+    var spreadSheet = SpreadsheetApp.create(sessionEmail + "のマイドライブ階層リストシート_ver" + VERSION );
+  }
+  else{
+    var spreadSheet = SpreadsheetApp.create(sheetName + "の階層リストシート_ver" + VERSION );
+  }
+
   const sheetId = spreadSheet.getId();
   const sheet = spreadSheet.getActiveSheet();
 

@@ -19,7 +19,7 @@ const RESTART_TIME = 1 * 60 * 1000;
 const TRIGGER_FUNC = '_main';
 const MAX_EXECUTION_TIME = 10 * 60 * 1000; // Google有料版のタイムアウトが30分なので書き込み用のバッファを持って10分で強制終了
 const WRITE_ROW_MAX = 50000; //書き込み上限5万行に設定 
-const VERSION = "2.001";
+const VERSION = "2.002";
 const endMessStatus = {
   NONE:0,
   DEFAULT: 1,
@@ -78,10 +78,10 @@ function _main(formData)
   if(progress === null)
   {
     if(formData.inputId === "マイドライブ"){
-      mainformData = new _setFormData(_getMyDriveId(),formData.mode)
+      mainformData = new _setFormData(_getMyDriveId(),formData.mode,true)
     }
     else{
-      mainformData = new _setFormData(formData.inputId,formData.mode)
+      mainformData = new _setFormData(formData.inputId,formData.mode,false)
     }
   }
   
